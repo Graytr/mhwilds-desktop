@@ -5,7 +5,7 @@
 
 [MeterChevron]
 Meter=Image
-ImageName=#@#Images\glowing_chevrons.png
+ImageName=#@#Images\chevrons.png
 X=#ChevronX#
 Y=#OptionY1#
 W=#ChevronW#

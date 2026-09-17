@@ -37,47 +37,43 @@ Hidden=1
 [Icon_ItemBox]
 Meter=Image
 MeterStyle=StyleIcon
-ImageName=#@#Images\chest_icon.png
+ImageName=#@#Images\icon_item_box.png
 X=#IconX1#
 MenuTitle=Item Box
 
 [Icon_Equipment]
 Meter=Image
 MeterStyle=StyleIcon
-ImageName=#@#Images\equipment_icon.png
-; this drawing is narrower than the others: shrink it and centre it in its slot
-W=(3.4*#SizeMultiplier#)
-X=(#IconX2# + ((#IconSize# - (3.4*#SizeMultiplier#)) / 2))
+ImageName=#@#Images\icon_equipment.png
+X=#IconX2#
 MenuTitle=Equipment Menu
 
 [Icon_Palico]
 Meter=Image
 MeterStyle=StyleIcon
-ImageName=#@#Images\palico_icon.png
+ImageName=#@#Images\icon_palico.png
 X=#IconX3#
 MenuTitle=Palico Menu
 
 [Icon_Quest]
 Meter=Image
 MeterStyle=StyleIcon
-ImageName=#@#Images\notes_icon.png
+ImageName=#@#Images\icon_quest.png
 X=#IconX4#
 MenuTitle=Quest Menu
 
 [Icon_Meal]
 Meter=Image
 MeterStyle=StyleIcon
-ImageName=#@#Images\food_icon.png
+ImageName=#@#Images\icon_meal.png
 X=#IconX5#
 MenuTitle=BBQ Menu
 
 [Icon_Appearance]
 Meter=Image
 MeterStyle=StyleIcon
-ImageName=#@#Images\personal_icon.png
-; narrower drawing, same treatment as the equipment icon
-W=(2.5*#SizeMultiplier#)
-X=(#IconX6# + ((#IconSize# - (2.5*#SizeMultiplier#)) / 2))
+ImageName=#@#Images\icon_appearance.png
+X=#IconX6#
 MenuTitle=Appearance Menu
 
 ; --- Sub-menus ------------------------------------------------------------------

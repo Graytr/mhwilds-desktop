@@ -21,8 +21,8 @@ AccentGreen=176,214,64
 CursorCoreColor=232,255,150,255
 
 ; --- Images -------------------------------------------------------------------
-BarImageNormal=#@#Images\not_selected_field_background_bar.png
-BarImageSelected=#@#Images\selected_field_background_bar.png
+BarImageNormal=#@#Images\bar_normal.png
+BarImageSelected=#@#Images\bar_selected.png
 
 ; --- Main menu bar ------------------------------------------------------------
 MainMenuX=0
@@ -34,18 +34,21 @@ TitleX=(#MainMenuX# + (6*#SizeMultiplier#))
 TitleY=(#MainMenuY# + (3*#SizeMultiplier#))
 TitleFontSize=(2.5*#SizeMultiplier#)
 
-; Icon row: six icons on a fixed pitch. IconX1..IconX6 are the slot positions.
-IconSize=(4*#SizeMultiplier#)
+; Icon row: six icons on a fixed pitch. Slot N is centred 2 units right of
+; MainMenuX + N*IconPitch, on the IconRowCenterY line. Neither depends on IconSize,
+; so the icons can be resized without moving their slots.
+IconSize=(4.8*#SizeMultiplier#)
 IconPitch=(10*#SizeMultiplier#)
-IconRowY=(#MainMenuY# + (9.5*#SizeMultiplier#))
-IconX1=(#MainMenuX# + (1*#IconPitch#))
-IconX2=(#MainMenuX# + (2*#IconPitch#))
-IconX3=(#MainMenuX# + (3*#IconPitch#))
-IconX4=(#MainMenuX# + (4*#IconPitch#))
-IconX5=(#MainMenuX# + (5*#IconPitch#))
-IconX6=(#MainMenuX# + (6*#IconPitch#))
+IconRowCenterY=(#MainMenuY# + (11.5*#SizeMultiplier#))
+IconRowY=(#IconRowCenterY# - (#IconSize# / 2))
+IconX1=(#MainMenuX# + (1*#IconPitch#) + (2*#SizeMultiplier#) - (#IconSize# / 2))
+IconX2=(#MainMenuX# + (2*#IconPitch#) + (2*#SizeMultiplier#) - (#IconSize# / 2))
+IconX3=(#MainMenuX# + (3*#IconPitch#) + (2*#SizeMultiplier#) - (#IconSize# / 2))
+IconX4=(#MainMenuX# + (4*#IconPitch#) + (2*#SizeMultiplier#) - (#IconSize# / 2))
+IconX5=(#MainMenuX# + (5*#IconPitch#) + (2*#SizeMultiplier#) - (#IconSize# / 2))
+IconX6=(#MainMenuX# + (6*#IconPitch#) + (2*#SizeMultiplier#) - (#IconSize# / 2))
 ; soft glow drawn behind the selected icon
-IconGlowRadius=(3.2*#SizeMultiplier#)
+IconGlowRadius=(3.6*#SizeMultiplier#)
 
 ; --- Option bars (the rows of a sub-menu) -------------------------------------
 OptionsX=(#MainMenuX# + (9*#SizeMultiplier#))

@@ -14,25 +14,34 @@ Naming conventions the script depends on
   group Menu_<Menu>      the meters of one sub-menu (shown together).
   group Icons            the six icons.
   MeterTitle, MeterIconGlow, MeterCursor, MeterChevron   the shared indicator meters.
+  MeasureAnim            ActionTimer whose list 1 glides the glow and list 2 the dot,
+                         calling AnimStep(meter) per frame and AnimDone(meter) at the end.
 
 Behaviour (mirrors the in-game tent menu)
-  * Hovering an icon selects it: the glow moves behind it, it tints and the title
+  * Hovering an icon selects it: the glow glides behind it, it tints and the title
     changes. The selection stays when the mouse leaves; it does not follow the mouse.
   * Clicking an icon opens its menu: the icon stays lit, option 1 is selected and
-    the dot sits on the left end of the selected bar. Clicking it again closes.
-  * Hovering an option selects it: bar highlight, chevron and dot move to it.
+    the dot glides from the icon down to the left end of the selected bar.
+    Clicking the same icon again closes the menu.
+  * Hovering an option selects it: bar highlight and chevron jump, the dot glides.
   * Clicking an option runs its MenuAction.
+
+Set DebugLog=1 in Variables.inc to have the script narrate in the Rainmeter log.
 ]]
 
 local openMenu       = nil   -- menu whose options are showing, or nil
 local selectedIcon   = nil   -- icon the glow rests on, or nil
 local selectedOption = {}    -- [menu] = index of the highlighted option bar
 
+local debugLog = false
+
 -- -----------------------------------------------------------------------------
 -- helpers
 -- -----------------------------------------------------------------------------
 
 local function bang(s) SKIN:Bang(s) end
+
+local function log(s) if debugLog then print('Menu.lua: ' .. s) end end
 
 -- Numeric value of a skin variable. Variables.inc writes sizes as fully
 -- parenthesised formulas such as (4*#SizeMultiplier#); this evaluates them.
@@ -61,24 +70,83 @@ local function tintIcon(menu, tintVar)
   bang('[!SetOption Icon_' .. menu .. ' ImageTint "#' .. tintVar .. '#"][!UpdateMeter Icon_' .. menu .. ']')
 end
 
--- centre the glow behind an icon
-local function placeGlow(menu)
-  local m = SKIN:GetMeter('Icon_' .. menu)
-  local r = num('IconGlowRadius')
-  local x = m:GetX() + m:GetW() / 2 - r
-  local y = m:GetY() + m:GetH() / 2 - r
-  bang('[!SetOption MeterIconGlow X ' .. x .. '][!SetOption MeterIconGlow Y ' .. y .. ']'
-    .. '[!ShowMeter MeterIconGlow][!UpdateMeter MeterIconGlow]')
+-- -----------------------------------------------------------------------------
+-- movement: meters either jump or glide to a target position
+-- -----------------------------------------------------------------------------
+
+local tweens   = {}                                  -- [meter] = { x0, y0, x1, y1, frame }
+local frames   = 12                                  -- frames per glide (AnimFrames)
+local animList = { MeterIconGlow = 1, MeterCursor = 2 }   -- MeasureAnim list per meter
+
+local function place(meter, x, y)
+  bang('[!SetOption ' .. meter .. ' X ' .. x .. '][!SetOption ' .. meter .. ' Y ' .. y .. '][!UpdateMeter ' .. meter .. ']')
 end
 
--- put the dot on the left end of option bar idx (bars may be hidden, so their
--- geometry comes from the variables rather than the meters)
-local function placeDot(idx)
+-- Start (or retarget) a glide from wherever the meter is right now, so rapid
+-- hovering never snaps.
+local function glide(meter, x, y)
+  local m = SKIN:GetMeter(meter)
+  if m:GetX() == x and m:GetY() == y then return end   -- already there
+  tweens[meter] = { x0 = m:GetX(), y0 = m:GetY(), x1 = x, y1 = y, frame = 0 }
+  log(('glide %s from %.0f,%.0f to %.0f,%.0f'):format(meter, m:GetX(), m:GetY(), x, y))
+  local list = animList[meter]
+  bang('[!CommandMeasure MeasureAnim "Stop ' .. list .. '"][!CommandMeasure MeasureAnim "Execute ' .. list .. '"]')
+end
+
+local function stopGlide(meter)
+  tweens[meter] = nil
+  bang('[!CommandMeasure MeasureAnim "Stop ' .. animList[meter] .. '"]')
+end
+
+local function easeOut(t) return 1 - (1 - t) ^ 3 end
+
+-- called by MeasureAnim once per frame
+function AnimStep(meter)
+  local tw = tweens[meter]
+  if not tw then return end
+  tw.frame = tw.frame + 1
+  local t = easeOut(math.min(tw.frame / frames, 1))
+  place(meter, tw.x0 + (tw.x1 - tw.x0) * t, tw.y0 + (tw.y1 - tw.y0) * t)
+  bang('!Redraw')
+end
+
+-- called by MeasureAnim after the last frame: land exactly on the target
+function AnimDone(meter)
+  local tw = tweens[meter]
+  if not tw then return end
+  tweens[meter] = nil
+  place(meter, tw.x1, tw.y1)
+  bang('!Redraw')
+  log(meter .. ' glide done after ' .. tw.frame .. ' frames')
+end
+
+-- -----------------------------------------------------------------------------
+-- the glow (behind icons) and the dot (on option bars)
+-- -----------------------------------------------------------------------------
+
+local function iconCentre(menu)
+  local m = SKIN:GetMeter('Icon_' .. menu)
+  return m:GetX() + m:GetW() / 2, m:GetY() + m:GetH() / 2
+end
+
+-- move the glow behind an icon; it glides if it is already showing
+local function placeGlow(menu)
+  local cx, cy = iconCentre(menu)
+  local r = num('IconGlowRadius')
+  if selectedIcon then
+    glide('MeterIconGlow', cx - r, cy - r)
+  else
+    place('MeterIconGlow', cx - r, cy - r)
+    bang('[!ShowMeter MeterIconGlow]')
+  end
+end
+
+-- top-left corner of the dot when it sits on the left end of option bar idx
+-- (bars may be hidden, so their geometry comes from the variables, not the meters)
+local function dotHome(idx)
   local r = num('CursorHaloRadius')
-  local x = num('OptionsX') + num('CursorInsetX') - r
-  local y = num('OptionY' .. idx) + num('OptionH') / 2 - r
-  bang('[!SetOption MeterCursor X ' .. x .. '][!SetOption MeterCursor Y ' .. y .. ']'
-    .. '[!ShowMeter MeterCursor][!UpdateMeter MeterCursor]')
+  return num('OptionsX') + num('CursorInsetX') - r,
+         num('OptionY' .. idx) + num('OptionH') / 2 - r
 end
 
 -- selected = true gives the bar the highlighted artwork, width and label colour
@@ -98,7 +166,7 @@ local function selectOption(menu, idx)
   selectedOption[menu] = idx
   styleBar(menu, idx, true)
   bang('[!SetOption MeterChevron Y "#OptionY' .. idx .. '#"][!ShowMeter MeterChevron][!UpdateMeter MeterChevron]')
-  placeDot(idx)
+  glide('MeterCursor', dotHome(idx))
 end
 
 local function closeOpenMenu()
@@ -106,6 +174,7 @@ local function closeOpenMenu()
   local menu = openMenu
   if selectedOption[menu] then styleBar(menu, selectedOption[menu], false) end
   selectedOption[menu] = nil
+  stopGlide('MeterCursor')
   bang('[!HideMeterGroup Menu_' .. menu .. '][!HideMeter MeterCursor][!HideMeter MeterChevron]')
   openMenu = nil
 end
@@ -116,10 +185,14 @@ end
 
 -- OnRefreshAction: everything closed, nothing selected.
 function Reset()
-  openMenu, selectedIcon, selectedOption = nil, nil, {}
-  bang('[!HideMeterGroup Menus][!HideMeter MeterIconGlow][!HideMeter MeterCursor][!HideMeter MeterChevron]'
+  debugLog = num('DebugLog') == 1
+  frames = math.max(1, num('AnimFrames'))
+  openMenu, selectedIcon, selectedOption, tweens = nil, nil, {}, {}
+  bang('[!CommandMeasure MeasureAnim "Stop 1"][!CommandMeasure MeasureAnim "Stop 2"]'
+    .. '[!HideMeterGroup Menus][!HideMeter MeterIconGlow][!HideMeter MeterCursor][!HideMeter MeterChevron]'
     .. '[!SetOptionGroup Icons ImageTint "#IconTintNormal#"][!SetOption MeterTitle Text ""]'
     .. '[!UpdateMeter *][!Redraw]')
+  log('reset')
 end
 
 function HoverIcon(section)
@@ -128,12 +201,13 @@ function HoverIcon(section)
   if openMenu then
     -- a menu is open: just a light hover highlight, the selection stays put
     if menu ~= openMenu then tintIcon(menu, 'IconTintHover') end
-  else
-    if selectedIcon and selectedIcon ~= menu then tintIcon(selectedIcon, 'IconTintNormal') end
-    selectedIcon = menu
+  elseif menu ~= selectedIcon then
+    if selectedIcon then tintIcon(selectedIcon, 'IconTintNormal') end
     tintIcon(menu, 'IconTintHover')
     setTitle(SKIN:GetMeter(section):GetOption('MenuTitle'))
     placeGlow(menu)
+    selectedIcon = menu
+    log('selected icon ' .. menu)
   end
   bang('!Redraw')
 end
@@ -157,13 +231,19 @@ end
 function OpenMenu(menu)
   closeOpenMenu()
   if selectedIcon and selectedIcon ~= menu then tintIcon(selectedIcon, 'IconTintNormal') end
-  openMenu, selectedIcon = menu, menu
   tintIcon(menu, 'IconTintSelected')
   setTitle(SKIN:GetMeter('Icon_' .. menu):GetOption('MenuTitle'))
   placeGlow(menu)
+  selectedIcon, openMenu = menu, menu
   bang('[!ShowMeterGroup Menu_' .. menu .. '][!UpdateMeterGroup Menu_' .. menu .. ']')
+  -- the dot starts on the icon and glides down to the first option
+  local cx, cy = iconCentre(menu)
+  local r = num('CursorHaloRadius')
+  place('MeterCursor', cx - r, cy - r)
+  bang('[!ShowMeter MeterCursor]')
   selectOption(menu, 1)
   bang('!Redraw')
+  log('opened ' .. menu)
 end
 
 function CloseMenu()
@@ -172,6 +252,7 @@ function CloseMenu()
   closeOpenMenu()
   tintIcon(menu, 'IconTintHover')   -- back to "selected but not open"
   bang('!Redraw')
+  log('closed ' .. menu)
 end
 
 function HoverOption(section)
@@ -187,5 +268,6 @@ function ClickOption(section)
   local menu, idx = parse(section)
   if not idx or menu ~= openMenu then return end
   local action = SKIN:GetMeter('Opt_' .. menu .. '_' .. idx):GetOption('MenuAction')
+  log('click ' .. menu .. ' option ' .. idx .. ' -> ' .. action)
   if action and action ~= '' then bang(action) end
 end

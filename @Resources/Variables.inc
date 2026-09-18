@@ -84,3 +84,50 @@ CursorHaloRadius=(1.4*#SizeMultiplier#)
 CursorCoreRadius=(0.5*#SizeMultiplier#)
 ; how far the centre of the dot sits inside the left edge of the selected bar
 CursorInsetX=(0.6*#SizeMultiplier#)
+
+; --- Folders and programs the menus point at ----------------------------------
+; Drop shortcuts (.lnk / .url) into the two Customize folders; git ignores them.
+; (Downloads is not here: the file list reads its location from Windows, see mDownloadsPath.)
+ProgramsPath=#@#Customize\Programs
+GamesPath=#@#Customize\Games
+DiscordShortcut=%APPDATA%\Microsoft\Windows\Start Menu\Programs\Discord.lnk
+; player for the BBQ menu's Now Playing panel, one of:
+; AIMP, CAD, foobar2000, iTunes, MediaMonkey, Spotify, WinAmp, WLM, WMP
+MediaPlayer=Spotify
+; where that player lives, used by the Open button (leave empty if unsure)
+MediaPlayerPath=%APPDATA%\Spotify\Spotify.exe
+
+; --- Panels: the area to the right of the option bars -------------------------
+PanelX=(#OptionsX# + #OptionSelectedW# + (10*#SizeMultiplier#))
+PanelY=#OptionsY#
+PanelW=(80*#SizeMultiplier#)
+PanelPad=(1.5*#SizeMultiplier#)
+PanelHeaderH=(5*#SizeMultiplier#)
+PanelFontSize=(1.6*#SizeMultiplier#)
+PanelTitleFontSize=(2*#SizeMultiplier#)
+PanelBgColor=18,18,14,205
+PanelBorderColor=150,140,110,140
+PanelInnerX=(#PanelX# + #PanelPad#)
+PanelInnerW=(#PanelW# - (2*#PanelPad#))
+PanelBodyY=(#PanelY# + #PanelHeaderH# + #PanelPad#)
+RowHoverColor=176,214,64,60
+
+; file list panel
+FileListRows=8
+FileRowH=(4.5*#SizeMultiplier#)
+FileIconSize=(3.2*#SizeMultiplier#)
+FileListH=(#PanelHeaderH# + (#FileListRows# * #FileRowH#) + (2*#PanelPad#))
+FileRowY1=(#PanelBodyY# + (0*#FileRowH#))
+FileRowY2=(#PanelBodyY# + (1*#FileRowH#))
+FileRowY3=(#PanelBodyY# + (2*#FileRowH#))
+FileRowY4=(#PanelBodyY# + (3*#FileRowH#))
+FileRowY5=(#PanelBodyY# + (4*#FileRowH#))
+FileRowY6=(#PanelBodyY# + (5*#FileRowH#))
+FileRowY7=(#PanelBodyY# + (6*#FileRowH#))
+FileRowY8=(#PanelBodyY# + (7*#FileRowH#))
+
+; status and now playing panels
+StatusRowH=(5*#SizeMultiplier#)
+StatusH=(#PanelHeaderH# + (5*#StatusRowH#) + (2*#PanelPad#))
+NowPlayingH=(24*#SizeMultiplier#)
+RunH=(#PanelHeaderH# + (6*#SizeMultiplier#))

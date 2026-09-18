@@ -69,6 +69,13 @@ ChevronX=(#OptionsX# + #OptionSelectedW#)
 ChevronW=(4*#SizeMultiplier#)
 ChevronH=#OptionH#
 
+; --- Animation ------------------------------------------------------------------
+; the glow and the dot glide to their targets: AnimFrames steps of AnimFrameMs each
+AnimFrames=12
+AnimFrameMs=16
+; set to 1 to have Menu.lua narrate what it does in the Rainmeter log
+DebugLog=0
+
 ; --- The dot ------------------------------------------------------------------
 CursorHaloRadius=(1.4*#SizeMultiplier#)
 CursorCoreRadius=(0.5*#SizeMultiplier#)

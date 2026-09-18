@@ -24,12 +24,27 @@ SortAscending=1
 DynamicVariables=1
 FinishAction=[!UpdateMeasureGroup FileListChildren][!UpdateMeterGroup Panel_FileList][!Redraw]
 
-; Where Windows keeps this user's Downloads folder (it can live on another drive)
+; Where Windows keeps this user's Downloads, Desktop and Documents folders (they can
+; live on another drive)
 [mDownloadsPath]
 Measure=Registry
 RegHKey=HKEY_CURRENT_USER
 RegKey=Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders
 RegValue={374DE290-123F-4565-9164-39C4925E467B}
+UpdateDivider=-1
+
+[mDesktopPath]
+Measure=Registry
+RegHKey=HKEY_CURRENT_USER
+RegKey=Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders
+RegValue=Desktop
+UpdateDivider=-1
+
+[mDocumentsPath]
+Measure=Registry
+RegHKey=HKEY_CURRENT_USER
+RegKey=Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders
+RegValue=Personal
 UpdateDivider=-1
 
 [mFileListFolders]

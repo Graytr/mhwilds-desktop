@@ -92,7 +92,10 @@ CursorInsetX=(0.6*#SizeMultiplier#)
 
 ; --- Folders and programs the menus point at ----------------------------------
 ; Drop shortcuts (.lnk / .url) into the two Customize folders; git ignores them.
-; (Downloads is not here: the file list reads its location from Windows, see mDownloadsPath.)
+; (Desktop, Documents and Downloads are not here: the file list reads their locations
+; from Windows, see the m...Path measures in Panels\FileList.inc.)
+; an empty path makes the file list show the drives, like This PC
+ThisPCPath=
 ProgramsPath=#@#Customize\Programs
 GamesPath=#@#Customize\Games
 DiscordShortcut=%APPDATA%\Microsoft\Windows\Start Menu\Programs\Discord.lnk

@@ -62,12 +62,12 @@ ImageName=#@#Images\icon_quest.png
 X=#IconX4#
 MenuTitle=Quest Menu
 
-[Icon_Meal]
+[Icon_Audio]
 Meter=Image
 MeterStyle=StyleIcon
-ImageName=#@#Images\icon_meal.png
+ImageName=#@#Images\icon_audio.png
 X=#IconX5#
-MenuTitle=BBQ Menu
+MenuTitle=Audio Menu
 
 [Icon_Appearance]
 Meter=Image
@@ -86,5 +86,5 @@ MenuTitle=Appearance Menu
 @IncludeEquipment=#@#Menus\Equipment.inc
 @IncludePalico=#@#Menus\Palico.inc
 @IncludeQuest=#@#Menus\Quest.inc
-@IncludeMeal=#@#Menus\Meal.inc
+@IncludeAudio=#@#Menus\Audio.inc
 @IncludeAppearance=#@#Menus\Appearance.inc

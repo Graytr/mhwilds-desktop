@@ -7,11 +7,13 @@ functions in this file, for example:
 
 Naming conventions the script depends on
   Icon_<Menu>            a main-menu icon. Custom option MenuTitle = the header text.
-  Opt_<Menu>_<N>         option bar N of that menu. Custom option MenuAction = the
-                         bang(s) to run when it is clicked, e.g. MenuAction=["shell:Downloads"]
-  Opt_<Menu>_<N>_Text    the label drawn on top of that bar.
-  group Menus            every sub-menu meter (hidden together).
-  group Menu_<Menu>      the meters of one sub-menu (shown together).
+  Opt_<List>_<N>         option bar N of a list. Custom option MenuAction = the bang(s) to
+                         run when it is clicked, e.g. MenuAction=["shell:Downloads"].
+                         A list is either a menu (same name as its icon) or a sub-menu.
+  Opt_<List>_<N>_Text    the label drawn on top of that bar.
+  #Menu_<List>_Title#    variable holding a sub-menu's header text.
+  group Menus            every list meter (hidden together).
+  group Menu_<List>      the meters of one list (shown together).
   group Icons            the six icons.
   group Panels           every panel meter; group Panel_<Name> one panel.
   group <Name>Measures   a panel's measures, enabled only while it is showing.
@@ -25,19 +27,23 @@ Behaviour (mirrors the in-game tent menu)
     changes. The selection stays when the mouse leaves; it does not follow the mouse.
   * Clicking an icon opens its menu: the icon stays lit, option 1 is selected and
     the dot glides from the icon down to the left end of the selected bar.
-    Clicking the same icon again closes the menu (and any panel).
+    Clicking the same icon again closes everything, panels included.
   * Hovering an option previews it: bar highlight, chevron and dot move there. When the
     mouse leaves, the highlight falls back to the option that was actually clicked.
   * Clicking an option selects it for good and runs its MenuAction. Panels open to the
     right of the options.
+  * A MenuAction of OpenSubmenu('<List>') replaces the list with that sub-menu, like the
+    game drilling down. BackMenu() (also right-click on any option) returns to the parent
+    list with its selection intact; at the top level it closes the menu.
 
 Set DebugLog=1 in Variables.inc to have the script narrate in the Rainmeter log.
 ]]
 
-local openMenu       = nil   -- menu whose options are showing, or nil
+local openMenu       = nil   -- root menu (the icon's) whose lists are showing, or nil
+local listStack      = {}    -- open lists, root first; the last one is on screen
 local selectedIcon   = nil   -- icon the glow rests on, or nil
-local selectedOption = {}    -- [menu] = option the user clicked (1 when the menu opens)
-local shownOption    = {}    -- [menu] = option currently highlighted (hover preview or selection)
+local selectedOption = {}    -- [list] = option the user clicked (1 when the list opens)
+local shownOption    = {}    -- [list] = option currently highlighted (hover preview or selection)
 local hoveredOption  = nil   -- option under the mouse right now, or nil
 local openPanel      = nil   -- panel showing to the right, or nil
 
@@ -61,16 +67,27 @@ local function num(name)
   return SKIN:ParseFormula(s)
 end
 
--- 'Icon_ItemBox' -> 'ItemBox'      'Opt_ItemBox_2_Text' -> 'ItemBox', 2
+-- 'Icon_ItemBox' -> 'ItemBox'      'Opt_Pouch_2_Text' -> 'Pouch', 2
 local function parse(section)
   local menu = section:match('^Icon_(%w+)$')
   if menu then return menu end
-  local m, idx = section:match('^Opt_(%w+)_(%d+)')
-  return m, tonumber(idx)
+  local list, idx = section:match('^Opt_(%w+)_(%d+)')
+  return list, tonumber(idx)
 end
+
+local function currentList() return listStack[#listStack] end
 
 local function setTitle(text)
   bang('[!SetOption MeterTitle Text "' .. text .. '"][!UpdateMeter MeterTitle]')
+end
+
+-- header text for a list: the icon's MenuTitle for a menu, the Menu_<List>_Title
+-- variable for a sub-menu
+local function listTitle(list)
+  if list == openMenu then return SKIN:GetMeter('Icon_' .. list):GetOption('MenuTitle') end
+  local t = SKIN:ReplaceVariables('#Menu_' .. list .. '_Title#')
+  if t:find('#', 1, true) then return list end   -- no title variable defined
+  return t
 end
 
 -- tintVar is the name of a colour variable, e.g. 'IconTintHover'
@@ -94,7 +111,9 @@ end
 -- hovering never snaps.
 local function glide(meter, x, y)
   local m = SKIN:GetMeter(meter)
-  if m:GetX() == x and m:GetY() == y then return end   -- already there
+  local tw = tweens[meter]
+  if tw and tw.x1 == x and tw.y1 == y then return end                -- already heading there
+  if not tw and m:GetX() == x and m:GetY() == y then return end      -- already there, not moving
   tweens[meter] = { x0 = m:GetX(), y0 = m:GetY(), x1 = x, y1 = y, frame = 0 }
   log(('glide %s from %.0f,%.0f to %.0f,%.0f'):format(meter, m:GetX(), m:GetY(), x, y))
   local list = animList[meter]
@@ -158,8 +177,8 @@ local function dotHome(idx)
 end
 
 -- selected = true gives the bar the highlighted artwork, width and label colour
-local function styleBar(menu, idx, selected)
-  local bar = 'Opt_' .. menu .. '_' .. idx
+local function styleBar(list, idx, selected)
+  local bar = 'Opt_' .. list .. '_' .. idx
   local img = selected and '#BarImageSelected#' or '#BarImageNormal#'
   local w   = selected and '#OptionSelectedW#' or '#OptionW#'
   local col = selected and '#OptionTextColorSelected#' or '#OptionTextColor#'
@@ -168,13 +187,13 @@ local function styleBar(menu, idx, selected)
     .. '[!UpdateMeter ' .. bar .. '][!UpdateMeter ' .. bar .. '_Text]')
 end
 
--- move the highlight (bar artwork, chevron, dot) to option idx of a menu
-local function highlight(menu, idx)
-  local prev = shownOption[menu]
+-- move the highlight (bar artwork, chevron, dot) to option idx of a list
+local function highlight(list, idx)
+  local prev = shownOption[list]
   if prev == idx then return end
-  if prev then styleBar(menu, prev, false) end
-  shownOption[menu] = idx
-  styleBar(menu, idx, true)
+  if prev then styleBar(list, prev, false) end
+  shownOption[list] = idx
+  styleBar(list, idx, true)
   bang('[!SetOption MeterChevron Y "#OptionY' .. idx .. '#"][!ShowMeter MeterChevron][!UpdateMeter MeterChevron]')
   glide('MeterCursor', dotHome(idx))
 end
@@ -214,7 +233,8 @@ end
 -- Point the file list at a folder and show it.
 --   source   name of a variable holding the folder, e.g. 'GamesPath', or of a measure
 --            whose string value is the folder, e.g. 'mDownloadsPath' (a name, not a path,
---            so backslashes never have to survive a Lua string)
+--            so backslashes never have to survive a Lua string). An empty path lists
+--            the drives.
 --   sort     Name, Size, Type or Date (Date lists newest first)
 --   title    header text
 --   exts     optional filter such as 'lnk;url'; empty or nil shows every file
@@ -276,18 +296,27 @@ function FileListOpen()
 end
 
 -- -----------------------------------------------------------------------------
--- menus
+-- lists: a menu and its sub-menus
 -- -----------------------------------------------------------------------------
+
+local function showList(list)
+  bang('[!ShowMeterGroup Menu_' .. list .. '][!UpdateMeterGroup Menu_' .. list .. ']')
+  setTitle(listTitle(list))
+end
+
+local function hideList(list)
+  if shownOption[list] then styleBar(list, shownOption[list], false) end
+  shownOption[list] = nil
+  bang('[!HideMeterGroup Menu_' .. list .. ']')
+end
 
 local function closeOpenMenu()
   if not openMenu then return end
-  local menu = openMenu
-  if shownOption[menu] then styleBar(menu, shownOption[menu], false) end
-  selectedOption[menu], shownOption[menu], hoveredOption = nil, nil, nil
+  for i = #listStack, 1, -1 do hideList(listStack[i]) end
+  listStack, selectedOption, shownOption, hoveredOption = {}, {}, {}, nil
   stopGlide('MeterCursor')
   HidePanels()
-  bang('[!CommandMeasure MeasureAnim "Stop 3"]'
-    .. '[!HideMeterGroup Menu_' .. menu .. '][!HideMeter MeterCursor][!HideMeter MeterChevron]')
+  bang('[!CommandMeasure MeasureAnim "Stop 3"][!HideMeter MeterCursor][!HideMeter MeterChevron]')
   openMenu = nil
 end
 
@@ -300,7 +329,7 @@ function Reset()
   debugLog = num('DebugLog') == 1
   frames = math.max(1, num('AnimFrames'))
   openMenu, selectedIcon, openPanel, hoveredOption = nil, nil, nil, nil
-  selectedOption, shownOption, tweens = {}, {}, {}
+  listStack, selectedOption, shownOption, tweens = {}, {}, {}, {}
   bang('[!CommandMeasure MeasureAnim "Stop 1"][!CommandMeasure MeasureAnim "Stop 2"][!CommandMeasure MeasureAnim "Stop 3"]'
     .. '[!HideMeterGroup Menus][!HideMeterGroup Panels]'
     .. '[!DisableMeasureGroup NowPlayingMeasures][!DisableMeasureGroup StatusMeasures]'
@@ -347,10 +376,9 @@ function OpenMenu(menu)
   closeOpenMenu()
   if selectedIcon and selectedIcon ~= menu then tintIcon(selectedIcon, 'IconTintNormal') end
   tintIcon(menu, 'IconTintSelected')
-  setTitle(SKIN:GetMeter('Icon_' .. menu):GetOption('MenuTitle'))
   placeGlow(menu)
-  selectedIcon, openMenu = menu, menu
-  bang('[!ShowMeterGroup Menu_' .. menu .. '][!UpdateMeterGroup Menu_' .. menu .. ']')
+  selectedIcon, openMenu, listStack = menu, menu, { menu }
+  showList(menu)
   -- the dot starts on the icon and glides down to the first option
   local cx, cy = iconCentre(menu)
   local r = num('CursorHaloRadius')
@@ -371,14 +399,44 @@ function CloseMenu()
   log('closed ' .. menu)
 end
 
+-- replace the current list with a sub-menu (a MenuAction: OpenSubmenu('Pouch'))
+function OpenSubmenu(list)
+  local parent = currentList()
+  if not parent or list == parent then return end
+  bang('[!CommandMeasure MeasureAnim "Stop 3"]')
+  hoveredOption = nil
+  hideList(parent)
+  listStack[#listStack + 1] = list
+  showList(list)
+  selectedOption[list] = 1
+  highlight(list, 1)   -- the dot glides from the clicked option to the first sub-option
+  bang('!Redraw')
+  log('opened sub-menu ' .. list)
+end
+
+-- one level up; at the top level this closes the menu (right-click does this too)
+function BackMenu()
+  if not openMenu then return end
+  if #listStack <= 1 then CloseMenu() return end
+  bang('[!CommandMeasure MeasureAnim "Stop 3"]')
+  hoveredOption = nil
+  hideList(currentList())
+  listStack[#listStack] = nil
+  local parent = currentList()
+  showList(parent)
+  highlight(parent, selectedOption[parent] or 1)
+  bang('!Redraw')
+  log('back to ' .. parent)
+end
+
 -- the mouse is over an option: preview it
 function HoverOption(section)
-  local menu, idx = parse(section)
-  if not idx or menu ~= openMenu then return end
+  local list, idx = parse(section)
+  if not idx or list ~= currentList() then return end
   bang('[!CommandMeasure MeasureAnim "Stop 3"]')
   hoveredOption = idx
-  if shownOption[menu] ~= idx then
-    highlight(menu, idx)
+  if shownOption[list] ~= idx then
+    highlight(list, idx)
     bang('!Redraw')
   end
 end
@@ -386,18 +444,19 @@ end
 -- the mouse left an option: after a short delay the highlight falls back to the
 -- clicked option (the delay lets the mouse cross the gap between two bars)
 function LeaveOption(section)
-  local menu, idx = parse(section)
-  if not idx or menu ~= openMenu then return end
+  local list, idx = parse(section)
+  if not idx or list ~= currentList() then return end
   if hoveredOption == idx then hoveredOption = nil end
   bang('[!CommandMeasure MeasureAnim "Stop 3"][!CommandMeasure MeasureAnim "Execute 3"]')
 end
 
 -- called by MeasureAnim list 3 once the delay has passed
 function RevertHover()
-  if not openMenu or hoveredOption then return end
-  local sel = selectedOption[openMenu] or 1
-  if shownOption[openMenu] ~= sel then
-    highlight(openMenu, sel)
+  local list = currentList()
+  if not list or hoveredOption then return end
+  local sel = selectedOption[list] or 1
+  if shownOption[list] ~= sel then
+    highlight(list, sel)
     bang('!Redraw')
     log('highlight back to option ' .. sel)
   end
@@ -405,11 +464,11 @@ end
 
 -- click: this option becomes the real selection, then its action runs
 function ClickOption(section)
-  local menu, idx = parse(section)
-  if not idx or menu ~= openMenu then return end
-  selectedOption[menu] = idx
-  highlight(menu, idx)
-  local action = SKIN:GetMeter('Opt_' .. menu .. '_' .. idx):GetOption('MenuAction')
-  log('click ' .. menu .. ' option ' .. idx .. ' -> ' .. action)
+  local list, idx = parse(section)
+  if not idx or list ~= currentList() then return end
+  selectedOption[list] = idx
+  highlight(list, idx)
+  local action = SKIN:GetMeter('Opt_' .. list .. '_' .. idx):GetOption('MenuAction')
+  log('click ' .. list .. ' option ' .. idx .. ' -> ' .. action)
   if action and action ~= '' then bang(action) end
 end

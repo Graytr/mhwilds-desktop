@@ -32,6 +32,7 @@ Hidden=1
 MouseOverAction=[!CommandMeasure MenuScript "HoverOption('#CURRENTSECTION#')"]
 MouseLeaveAction=[!CommandMeasure MenuScript "LeaveOption('#CURRENTSECTION#')"]
 LeftMouseUpAction=[!CommandMeasure MenuScript "ClickOption('#CURRENTSECTION#')"]
+RightMouseUpAction=[!CommandMeasure MenuScript "BackMenu()"]
 
 [StyleOptionText]
 FontFace=#FontFamily#
@@ -46,6 +47,7 @@ Hidden=1
 MouseOverAction=[!CommandMeasure MenuScript "HoverOption('#CURRENTSECTION#')"]
 MouseLeaveAction=[!CommandMeasure MenuScript "LeaveOption('#CURRENTSECTION#')"]
 LeftMouseUpAction=[!CommandMeasure MenuScript "ClickOption('#CURRENTSECTION#')"]
+RightMouseUpAction=[!CommandMeasure MenuScript "BackMenu()"]
 
 ; --- Panels -------------------------------------------------------------------
 

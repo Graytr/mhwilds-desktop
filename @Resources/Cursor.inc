@@ -3,6 +3,14 @@
 ; selected option bar, and the green dot. Menu.lua moves them; both start hidden.
 ; ==============================================================================
 
+; white flash over the clicked option bar; Menu.lua shows it and fades it out
+[MeterPulse]
+Meter=Shape
+X=#OptionsX#
+Y=#OptionY1#
+Shape=Rectangle 0,0,#OptionSelectedW#,#OptionH#,3 | Fill Color 255,255,255,0 | StrokeWidth 0
+Hidden=1
+
 [MeterChevron]
 Meter=Image
 ImageName=#@#Images\chevrons.png
@@ -38,4 +46,8 @@ DotDone=[!CommandMeasure MenuScript "AnimDone('MeterCursor')"]
 ; to the clicked option unless another option was hovered in the meantime
 ActionList3=Wait #HoverRevertMs# | HoverRevert
 HoverRevert=[!CommandMeasure MenuScript "RevertHover()"]
+; list 4: the click flash, one PulseStep per frame
+ActionList4=Repeat PulseStep,#AnimFrameMs#,#PulseFrames# | PulseDone
+PulseStep=[!CommandMeasure MenuScript "PulseStep()"]
+PulseDone=[!CommandMeasure MenuScript "PulseDone()"]
 IgnoreWarnings=1

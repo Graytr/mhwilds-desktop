@@ -81,6 +81,11 @@ AnimFrameMs=16
 ; when the mouse leaves an option, wait this long before the highlight returns to the
 ; clicked option (long enough to cross the gap between two bars without flicker)
 HoverRevertMs=80
+; click feedback: a white flash over the clicked bar that fades out over PulseFrames frames
+PulseFrames=10
+PulsePeakAlpha=150
+; the selected bar's artwork is drawn at this opacity (255 = exactly as painted)
+BarSelectedAlpha=225
 ; set to 1 to have Menu.lua narrate what it does in the Rainmeter log
 DebugLog=0
 

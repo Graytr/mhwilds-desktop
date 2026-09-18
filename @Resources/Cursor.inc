@@ -34,4 +34,8 @@ GlowDone=[!CommandMeasure MenuScript "AnimDone('MeterIconGlow')"]
 ActionList2=Repeat DotStep,#AnimFrameMs#,#AnimFrames# | DotDone
 DotStep=[!CommandMeasure MenuScript "AnimStep('MeterCursor')"]
 DotDone=[!CommandMeasure MenuScript "AnimDone('MeterCursor')"]
+; list 3: short delay after the mouse leaves an option, then the highlight falls back
+; to the clicked option unless another option was hovered in the meantime
+ActionList3=Wait #HoverRevertMs# | HoverRevert
+HoverRevert=[!CommandMeasure MenuScript "RevertHover()"]
 IgnoreWarnings=1

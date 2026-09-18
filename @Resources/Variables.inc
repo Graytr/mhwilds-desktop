@@ -55,7 +55,9 @@ OptionsX=(#MainMenuX# + (9*#SizeMultiplier#))
 OptionsY=(#MainMenuY# + (18*#SizeMultiplier#))
 OptionPitch=(5*#SizeMultiplier#)
 OptionH=(5*#SizeMultiplier#)
-OptionW=(100*#SizeMultiplier#)
+; the unselected bar art fades out by 42% of its width, so the bar (and its mouse
+; area) stops at 45 units instead of running under the panels
+OptionW=(45*#SizeMultiplier#)
 OptionSelectedW=(50*#SizeMultiplier#)
 OptionTextDX=(3*#SizeMultiplier#)
 OptionTextDY=(1.1*#SizeMultiplier#)
@@ -76,6 +78,9 @@ ChevronH=#OptionH#
 ; the glow and the dot glide to their targets: AnimFrames steps of AnimFrameMs each
 AnimFrames=12
 AnimFrameMs=16
+; when the mouse leaves an option, wait this long before the highlight returns to the
+; clicked option (long enough to cross the gap between two bars without flicker)
+HoverRevertMs=80
 ; set to 1 to have Menu.lua narrate what it does in the Rainmeter log
 DebugLog=0
 

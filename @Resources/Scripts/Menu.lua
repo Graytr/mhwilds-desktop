@@ -16,8 +16,8 @@ Naming conventions the script depends on
   group Panels           every panel meter; group Panel_<Name> one panel.
   group <Name>Measures   a panel's measures, enabled only while it is showing.
   MeterTitle, MeterIconGlow, MeterCursor, MeterChevron   the shared indicator meters.
-  MeasureAnim            ActionTimer whose list 1 glides the glow and list 2 the dot,
-                         calling AnimStep(meter) per frame and AnimDone(meter) at the end.
+  MeasureAnim            ActionTimer: list 1 glides the glow, list 2 the dot (AnimStep /
+                         AnimDone per meter), list 3 is the hover fall-back delay (RevertHover).
   mFileList, mFile<N>Name, FileRow<N>, FileIcon<N>, FileName<N>   the file list panel.
 
 Behaviour (mirrors the in-game tent menu)
@@ -26,15 +26,19 @@ Behaviour (mirrors the in-game tent menu)
   * Clicking an icon opens its menu: the icon stays lit, option 1 is selected and
     the dot glides from the icon down to the left end of the selected bar.
     Clicking the same icon again closes the menu (and any panel).
-  * Hovering an option selects it: bar highlight and chevron jump, the dot glides.
-  * Clicking an option runs its MenuAction. Panels open to the right of the options.
+  * Hovering an option previews it: bar highlight, chevron and dot move there. When the
+    mouse leaves, the highlight falls back to the option that was actually clicked.
+  * Clicking an option selects it for good and runs its MenuAction. Panels open to the
+    right of the options.
 
 Set DebugLog=1 in Variables.inc to have the script narrate in the Rainmeter log.
 ]]
 
 local openMenu       = nil   -- menu whose options are showing, or nil
 local selectedIcon   = nil   -- icon the glow rests on, or nil
-local selectedOption = {}    -- [menu] = index of the highlighted option bar
+local selectedOption = {}    -- [menu] = option the user clicked (1 when the menu opens)
+local shownOption    = {}    -- [menu] = option currently highlighted (hover preview or selection)
+local hoveredOption  = nil   -- option under the mouse right now, or nil
 local openPanel      = nil   -- panel showing to the right, or nil
 
 local debugLog = false
@@ -164,10 +168,12 @@ local function styleBar(menu, idx, selected)
     .. '[!UpdateMeter ' .. bar .. '][!UpdateMeter ' .. bar .. '_Text]')
 end
 
-local function selectOption(menu, idx)
-  local prev = selectedOption[menu]
-  if prev and prev ~= idx then styleBar(menu, prev, false) end
-  selectedOption[menu] = idx
+-- move the highlight (bar artwork, chevron, dot) to option idx of a menu
+local function highlight(menu, idx)
+  local prev = shownOption[menu]
+  if prev == idx then return end
+  if prev then styleBar(menu, prev, false) end
+  shownOption[menu] = idx
   styleBar(menu, idx, true)
   bang('[!SetOption MeterChevron Y "#OptionY' .. idx .. '#"][!ShowMeter MeterChevron][!UpdateMeter MeterChevron]')
   glide('MeterCursor', dotHome(idx))
@@ -276,11 +282,12 @@ end
 local function closeOpenMenu()
   if not openMenu then return end
   local menu = openMenu
-  if selectedOption[menu] then styleBar(menu, selectedOption[menu], false) end
-  selectedOption[menu] = nil
+  if shownOption[menu] then styleBar(menu, shownOption[menu], false) end
+  selectedOption[menu], shownOption[menu], hoveredOption = nil, nil, nil
   stopGlide('MeterCursor')
   HidePanels()
-  bang('[!HideMeterGroup Menu_' .. menu .. '][!HideMeter MeterCursor][!HideMeter MeterChevron]')
+  bang('[!CommandMeasure MeasureAnim "Stop 3"]'
+    .. '[!HideMeterGroup Menu_' .. menu .. '][!HideMeter MeterCursor][!HideMeter MeterChevron]')
   openMenu = nil
 end
 
@@ -292,8 +299,9 @@ end
 function Reset()
   debugLog = num('DebugLog') == 1
   frames = math.max(1, num('AnimFrames'))
-  openMenu, selectedIcon, selectedOption, tweens, openPanel = nil, nil, {}, {}, nil
-  bang('[!CommandMeasure MeasureAnim "Stop 1"][!CommandMeasure MeasureAnim "Stop 2"]'
+  openMenu, selectedIcon, openPanel, hoveredOption = nil, nil, nil, nil
+  selectedOption, shownOption, tweens = {}, {}, {}
+  bang('[!CommandMeasure MeasureAnim "Stop 1"][!CommandMeasure MeasureAnim "Stop 2"][!CommandMeasure MeasureAnim "Stop 3"]'
     .. '[!HideMeterGroup Menus][!HideMeterGroup Panels]'
     .. '[!DisableMeasureGroup NowPlayingMeasures][!DisableMeasureGroup StatusMeasures]'
     .. '[!HideMeter MeterIconGlow][!HideMeter MeterCursor][!HideMeter MeterChevron]'
@@ -348,7 +356,8 @@ function OpenMenu(menu)
   local r = num('CursorHaloRadius')
   place('MeterCursor', cx - r, cy - r)
   bang('[!ShowMeter MeterCursor]')
-  selectOption(menu, 1)
+  selectedOption[menu] = 1
+  highlight(menu, 1)
   bang('!Redraw')
   log('opened ' .. menu)
 end
@@ -362,20 +371,45 @@ function CloseMenu()
   log('closed ' .. menu)
 end
 
+-- the mouse is over an option: preview it
 function HoverOption(section)
   local menu, idx = parse(section)
   if not idx or menu ~= openMenu then return end
-  if selectedOption[menu] ~= idx then
-    selectOption(menu, idx)
+  bang('[!CommandMeasure MeasureAnim "Stop 3"]')
+  hoveredOption = idx
+  if shownOption[menu] ~= idx then
+    highlight(menu, idx)
     bang('!Redraw')
   end
 end
 
+-- the mouse left an option: after a short delay the highlight falls back to the
+-- clicked option (the delay lets the mouse cross the gap between two bars)
+function LeaveOption(section)
+  local menu, idx = parse(section)
+  if not idx or menu ~= openMenu then return end
+  if hoveredOption == idx then hoveredOption = nil end
+  bang('[!CommandMeasure MeasureAnim "Stop 3"][!CommandMeasure MeasureAnim "Execute 3"]')
+end
+
+-- called by MeasureAnim list 3 once the delay has passed
+function RevertHover()
+  if not openMenu or hoveredOption then return end
+  local sel = selectedOption[openMenu] or 1
+  if shownOption[openMenu] ~= sel then
+    highlight(openMenu, sel)
+    bang('!Redraw')
+    log('highlight back to option ' .. sel)
+  end
+end
+
+-- click: this option becomes the real selection, then its action runs
 function ClickOption(section)
   local menu, idx = parse(section)
   if not idx or menu ~= openMenu then return end
+  selectedOption[menu] = idx
+  highlight(menu, idx)
   local action = SKIN:GetMeter('Opt_' .. menu .. '_' .. idx):GetOption('MenuAction')
   log('click ' .. menu .. ' option ' .. idx .. ' -> ' .. action)
   if action and action ~= '' then bang(action) end
 end
-

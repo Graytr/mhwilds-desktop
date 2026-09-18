@@ -2,7 +2,7 @@
 Menu.lua - all menu state for the Monster Hunter Wilds camp menu.
 
 The INI files only describe how things look. Every mouse action calls one of the
-functions at the bottom of this file, for example:
+functions in this file, for example:
     MouseOverAction=[!CommandMeasure MenuScript "HoverIcon('#CURRENTSECTION#')"]
 
 Naming conventions the script depends on
@@ -13,18 +13,21 @@ Naming conventions the script depends on
   group Menus            every sub-menu meter (hidden together).
   group Menu_<Menu>      the meters of one sub-menu (shown together).
   group Icons            the six icons.
+  group Panels           every panel meter; group Panel_<Name> one panel.
+  group <Name>Measures   a panel's measures, enabled only while it is showing.
   MeterTitle, MeterIconGlow, MeterCursor, MeterChevron   the shared indicator meters.
   MeasureAnim            ActionTimer whose list 1 glides the glow and list 2 the dot,
                          calling AnimStep(meter) per frame and AnimDone(meter) at the end.
+  mFileList, mFile<N>Name, FileRow<N>, FileIcon<N>, FileName<N>   the file list panel.
 
 Behaviour (mirrors the in-game tent menu)
   * Hovering an icon selects it: the glow glides behind it, it tints and the title
     changes. The selection stays when the mouse leaves; it does not follow the mouse.
   * Clicking an icon opens its menu: the icon stays lit, option 1 is selected and
     the dot glides from the icon down to the left end of the selected bar.
-    Clicking the same icon again closes the menu.
+    Clicking the same icon again closes the menu (and any panel).
   * Hovering an option selects it: bar highlight and chevron jump, the dot glides.
-  * Clicking an option runs its MenuAction.
+  * Clicking an option runs its MenuAction. Panels open to the right of the options.
 
 Set DebugLog=1 in Variables.inc to have the script narrate in the Rainmeter log.
 ]]
@@ -32,6 +35,7 @@ Set DebugLog=1 in Variables.inc to have the script narrate in the Rainmeter log.
 local openMenu       = nil   -- menu whose options are showing, or nil
 local selectedIcon   = nil   -- icon the glow rests on, or nil
 local selectedOption = {}    -- [menu] = index of the highlighted option bar
+local openPanel      = nil   -- panel showing to the right, or nil
 
 local debugLog = false
 
@@ -169,12 +173,113 @@ local function selectOption(menu, idx)
   glide('MeterCursor', dotHome(idx))
 end
 
+-- -----------------------------------------------------------------------------
+-- panels: the area to the right of the options
+-- -----------------------------------------------------------------------------
+
+-- panels whose measures should only run while they are showing
+local panelMeasures = { NowPlaying = 'NowPlayingMeasures', Status = 'StatusMeasures' }
+
+function HidePanels()
+  if openPanel and panelMeasures[openPanel] then
+    bang('[!DisableMeasureGroup ' .. panelMeasures[openPanel] .. ']')
+  end
+  openPanel = nil
+  bang('[!HideMeterGroup Panels][!Redraw]')
+end
+
+-- name is the part after Panel_ in the group name: FileList, NowPlaying, Status, Run
+function ShowPanel(name)
+  if openPanel ~= name then
+    if openPanel and panelMeasures[openPanel] then
+      bang('[!DisableMeasureGroup ' .. panelMeasures[openPanel] .. ']')
+    end
+    bang('[!HideMeterGroup Panels]')
+    openPanel = name
+    if panelMeasures[name] then
+      bang('[!EnableMeasureGroup ' .. panelMeasures[name] .. '][!UpdateMeasureGroup ' .. panelMeasures[name] .. ']')
+    end
+    bang('[!ShowMeterGroup Panel_' .. name .. '][!UpdateMeterGroup Panel_' .. name .. ']')
+    log('panel ' .. name)
+  end
+  bang('!Redraw')
+end
+
+-- Point the file list at a folder and show it.
+--   source   name of a variable holding the folder, e.g. 'GamesPath', or of a measure
+--            whose string value is the folder, e.g. 'mDownloadsPath' (a name, not a path,
+--            so backslashes never have to survive a Lua string)
+--   sort     Name, Size, Type or Date (Date lists newest first)
+--   title    header text
+--   exts     optional filter such as 'lnk;url'; empty or nil shows every file
+function ShowFolder(source, sort, title, exts)
+  sort = sort or 'Name'
+  local m = SKIN:GetMeasure(source)
+  local path = m and m:GetStringValue() or ('#' .. source .. '#')
+  bang('[!SetOption mFileList Path "' .. path .. '"]'
+    .. '[!SetOption mFileList SortType "' .. sort .. '"]'
+    .. '[!SetOption mFileList SortAscending "' .. (sort == 'Date' and '0' or '1') .. '"]'
+    .. '[!SetOption mFileList Extensions "' .. (exts or '') .. '"]'
+    .. '[!SetOption PanelFileListTitle Text "' .. (title or 'Files') .. '"]'
+    .. '[!UpdateMeasure mFileList][!CommandMeasure mFileList Update]')
+  ShowPanel('FileList')
+end
+
+-- file list rows: FileRow3, FileIcon3 and FileName3 all mean row 3
+local function rowOf(section) return tonumber(section:match('(%d+)$')) end
+
+local function tintRow(n, colour)
+  bang('[!SetOption FileRow' .. n .. ' Shape "Rectangle 0,0,#PanelInnerW#,#FileRowH#,3 | Fill Color ' .. colour .. ' | StrokeWidth 0"]'
+    .. '[!UpdateMeter FileRow' .. n .. '][!Redraw]')
+end
+
+function FileRowHover(section)
+  local n = rowOf(section)
+  if n then tintRow(n, '#RowHoverColor#') end
+end
+
+function FileRowLeave(section)
+  local n = rowOf(section)
+  if n then tintRow(n, '0,0,0,1') end
+end
+
+-- open the file or shortcut on that row, or step into the folder
+function FileRowClick(section)
+  local n = rowOf(section)
+  if not n then return end
+  local name = SKIN:GetMeasure('mFile' .. n .. 'Name'):GetStringValue()
+  if name == '' then return end
+  log('open ' .. name)
+  bang('[!CommandMeasure mFile' .. n .. 'Name FollowPath][!UpdateMeasure mFileList]')
+end
+
+-- dir is -1 (up) or 1 (down)
+function FileListScroll(dir)
+  local cmd = (tonumber(dir) or 1) < 0 and 'IndexUp' or 'IndexDown'
+  bang('[!CommandMeasure mFileList ' .. cmd .. '][!UpdateMeasure mFileList]'
+    .. '[!UpdateMeasureGroup FileListChildren][!UpdateMeterGroup Panel_FileList][!Redraw]')
+end
+
+function FileListBack()
+  bang('[!CommandMeasure mFileList PreviousFolder][!UpdateMeasure mFileList]')
+end
+
+function FileListOpen()
+  local path = SKIN:GetMeasure('mFileList'):GetStringValue()
+  if path ~= '' then bang('["' .. path .. '"]') end
+end
+
+-- -----------------------------------------------------------------------------
+-- menus
+-- -----------------------------------------------------------------------------
+
 local function closeOpenMenu()
   if not openMenu then return end
   local menu = openMenu
   if selectedOption[menu] then styleBar(menu, selectedOption[menu], false) end
   selectedOption[menu] = nil
   stopGlide('MeterCursor')
+  HidePanels()
   bang('[!HideMeterGroup Menu_' .. menu .. '][!HideMeter MeterCursor][!HideMeter MeterChevron]')
   openMenu = nil
 end
@@ -187,9 +292,11 @@ end
 function Reset()
   debugLog = num('DebugLog') == 1
   frames = math.max(1, num('AnimFrames'))
-  openMenu, selectedIcon, selectedOption, tweens = nil, nil, {}, {}
+  openMenu, selectedIcon, selectedOption, tweens, openPanel = nil, nil, {}, {}, nil
   bang('[!CommandMeasure MeasureAnim "Stop 1"][!CommandMeasure MeasureAnim "Stop 2"]'
-    .. '[!HideMeterGroup Menus][!HideMeter MeterIconGlow][!HideMeter MeterCursor][!HideMeter MeterChevron]'
+    .. '[!HideMeterGroup Menus][!HideMeterGroup Panels]'
+    .. '[!DisableMeasureGroup NowPlayingMeasures][!DisableMeasureGroup StatusMeasures]'
+    .. '[!HideMeter MeterIconGlow][!HideMeter MeterCursor][!HideMeter MeterChevron]'
     .. '[!SetOptionGroup Icons ImageTint "#IconTintNormal#"][!SetOption MeterTitle Text ""]'
     .. '[!UpdateMeter *][!Redraw]')
   log('reset')
@@ -271,3 +378,4 @@ function ClickOption(section)
   log('click ' .. menu .. ' option ' .. idx .. ' -> ' .. action)
   if action and action ~= '' then bang(action) end
 end
+

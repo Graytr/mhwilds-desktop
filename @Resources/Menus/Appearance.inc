@@ -1,13 +1,16 @@
 ; ==============================================================================
 ; Appearance menu: how things look, plus a command box.
 ;
-; Every option is a bar (Opt_Appearance_<N>) plus its label (Opt_Appearance_<N>_Text).
-; MenuAction on the bar is what runs when the option is clicked: any bang(s), a
-; program or path in ["quotes"], or a Menu.lua call such as
-;   [!CommandMeasure MenuScript "ShowFolder('GamesPath', 'Name', 'Games')"]
-; To add an option, copy a pair, bump <N> and use the next OptionY variable.
+; Every option is a bar (Opt_<List>_<N>) plus its label (Opt_<List>_<N>_Text), and an
+; arrow (Opt_<List>_<N>_Arrow) when it opens something to the right. MenuAction on the
+; bar runs when the option is clicked: bangs, a program or path in ["quotes"], or a
+; Menu.lua call such as ShowFolder, ShowPanel or OpenSubmenu.
+; A sub-menu is a second list (Style<List> / Opt_<List>_<N>) using the SubColumn styles;
+; it opens in a column to the right of the list that owns it.
+; To add an option, copy a group, bump <N> and use the next OptionY variable.
 ; ==============================================================================
 
+; --- Appearance: the list shown when the hunter icon is clicked
 [StyleAppearance]
 Group=Menus | Menu_Appearance
 
@@ -63,10 +66,15 @@ Text=Edit This Skin
 Meter=Image
 MeterStyle=StyleOptionBar | StyleAppearance
 Y=#OptionY5#
-MenuAction=[!CommandMeasure MenuScript "ShowPanel('Run')"][!CommandMeasure mRun "ExecuteBatch 1"]
+MenuAction=[!CommandMeasure MenuScript "ShowPanel('Run')"][!CommandMeasure MenuScript mRun "ExecuteBatch 1"]
 
 [Opt_Appearance_5_Text]
 Meter=String
 MeterStyle=StyleOptionText | StyleAppearance
 Y=(#OptionY5# + #OptionTextDY#)
 Text=Run Command
+
+[Opt_Appearance_5_Arrow]
+Meter=Image
+MeterStyle=StyleOptionArrow | StyleAppearance
+Y=#OptionY5#

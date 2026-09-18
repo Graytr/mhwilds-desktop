@@ -51,6 +51,7 @@ Disabled=1
 
 [PanelStatusBg]
 Meter=Shape
+DynamicVariables=1
 MeterStyle=StyleStatus
 X=#PanelX#
 Y=#PanelY#
@@ -60,7 +61,7 @@ Hidden=1
 [PanelStatusHeader]
 Meter=String
 MeterStyle=StylePanelTitle | StyleStatus
-X=#PanelInnerX#
+X=(#PanelX# + #PanelPad#)
 Y=(#PanelY# + #PanelPad#)
 W=#PanelInnerW#
 Text=Palico Status

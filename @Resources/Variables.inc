@@ -69,10 +69,14 @@ OptionY4=(#OptionsY# + (3*#OptionPitch#))
 OptionY5=(#OptionsY# + (4*#OptionPitch#))
 OptionY6=(#OptionsY# + (5*#OptionPitch#))
 
-; chevron at the right end of the selected bar
-ChevronX=(#OptionsX# + #OptionSelectedW#)
-ChevronW=(4*#SizeMultiplier#)
-ChevronH=#OptionH#
+; second column: a sub-menu opens to the right of the list that owns it
+SubOptionsX=(#OptionsX# + #OptionSelectedW# + (8*#SizeMultiplier#))
+; arrows mark options that open a sub-menu or a panel; they sit just past the end
+; of the selected bar and stay visible whether or not the option is selected
+ArrowX=(#OptionsX# + #OptionSelectedW#)
+SubArrowX=(#SubOptionsX# + #OptionSelectedW#)
+ArrowW=(4*#SizeMultiplier#)
+ArrowH=#OptionH#
 
 ; --- Animation ------------------------------------------------------------------
 ; the glow and the dot glide to their targets: AnimFrames steps of AnimFrameMs each
@@ -111,7 +115,11 @@ MediaPlayer=Spotify
 MediaPlayerPath=%APPDATA%\Spotify\Spotify.exe
 
 ; --- Panels: the area to the right of the option bars -------------------------
-PanelX=(#OptionsX# + #OptionSelectedW# + (10*#SizeMultiplier#))
+; panels sit right of the list they were opened from. Menu.lua switches PanelX between
+; these two as a sub-menu opens or closes (panel meters use DynamicVariables=1 for that)
+PanelXNear=(#OptionsX# + #OptionSelectedW# + (10*#SizeMultiplier#))
+PanelXFar=(#SubOptionsX# + #OptionSelectedW# + (10*#SizeMultiplier#))
+PanelX=#PanelXNear#
 PanelY=#OptionsY#
 PanelW=(80*#SizeMultiplier#)
 PanelPad=(1.5*#SizeMultiplier#)
@@ -120,7 +128,9 @@ PanelFontSize=(1.6*#SizeMultiplier#)
 PanelTitleFontSize=(2*#SizeMultiplier#)
 PanelBgColor=18,18,14,205
 PanelBorderColor=150,140,110,140
-PanelInnerX=(#PanelX# + #PanelPad#)
+; (there is deliberately no PanelInnerX: Rainmeter bakes a variable's references at load,
+; so a variable derived from PanelX would not follow it when Menu.lua moves the panels;
+; panel meters write (#PanelX# + #PanelPad#) instead)
 PanelInnerW=(#PanelW# - (2*#PanelPad#))
 PanelBodyY=(#PanelY# + #PanelHeaderH# + #PanelPad#)
 RowHoverColor=176,214,64,60

@@ -1,12 +1,13 @@
 ; ==============================================================================
 ; Equipment menu: your loadout is your programs, named after the game's own options.
 ;
-; Every option is a bar (Opt_<List>_<N>) plus its label (Opt_<List>_<N>_Text).
-; MenuAction on the bar runs when the option is clicked: bangs, a program or path in
-; ["quotes"], or a Menu.lua call such as ShowFolder, ShowPanel, OpenSubmenu or BackMenu.
-; A sub-menu is just another list (Style<List> / Opt_<List>_<N>) that replaces the
-; parent list when opened; its title comes from the Menu_<List>_Title variable.
-; To add an option, copy a pair, bump <N> and use the next OptionY variable.
+; Every option is a bar (Opt_<List>_<N>) plus its label (Opt_<List>_<N>_Text), and an
+; arrow (Opt_<List>_<N>_Arrow) when it opens something to the right. MenuAction on the
+; bar runs when the option is clicked: bangs, a program or path in ["quotes"], or a
+; Menu.lua call such as ShowFolder, ShowPanel or OpenSubmenu.
+; A sub-menu is a second list (Style<List> / Opt_<List>_<N>) using the SubColumn styles;
+; it opens in a column to the right of the list that owns it.
+; To add an option, copy a group, bump <N> and use the next OptionY variable.
 ; ==============================================================================
 
 ; --- Equipment: the list shown when the armour icon is clicked
@@ -24,6 +25,11 @@ Meter=String
 MeterStyle=StyleOptionText | StyleEquipment
 Y=(#OptionY1# + #OptionTextDY#)
 Text=Change Equipment
+
+[Opt_Equipment_1_Arrow]
+Meter=Image
+MeterStyle=StyleOptionArrow | StyleEquipment
+Y=#OptionY1#
 
 [Opt_Equipment_2]
 Meter=Image

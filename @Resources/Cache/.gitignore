@@ -1,0 +1,3 @@
+# FileView writes the extracted file icons here; nothing in this folder belongs in the repo.
+*
+!.gitignore

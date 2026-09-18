@@ -19,7 +19,9 @@ Naming conventions the script depends on
   group <Name>Measures   a panel's measures, enabled only while it is showing.
   MeterTitle, MeterIconGlow, MeterCursor, MeterChevron   the shared indicator meters.
   MeasureAnim            ActionTimer: list 1 glides the glow, list 2 the dot (AnimStep /
-                         AnimDone per meter), list 3 is the hover fall-back delay (RevertHover).
+                         AnimDone per meter), list 3 is the hover fall-back delay (RevertHover),
+                         list 4 fades the click flash (PulseStep / PulseDone).
+  MeterPulse             white flash drawn over the clicked option bar.
   mFileList, mFile<N>Name, FileRow<N>, FileIcon<N>, FileName<N>   the file list panel.
 
 Behaviour (mirrors the in-game tent menu)
@@ -182,7 +184,9 @@ local function styleBar(list, idx, selected)
   local img = selected and '#BarImageSelected#' or '#BarImageNormal#'
   local w   = selected and '#OptionSelectedW#' or '#OptionW#'
   local col = selected and '#OptionTextColorSelected#' or '#OptionTextColor#'
+  local alpha = selected and '#BarSelectedAlpha#' or '255'
   bang('[!SetOption ' .. bar .. ' ImageName "' .. img .. '"][!SetOption ' .. bar .. ' W "' .. w .. '"]'
+    .. '[!SetOption ' .. bar .. ' ImageAlpha "' .. alpha .. '"]'
     .. '[!SetOption ' .. bar .. '_Text FontColor "' .. col .. '"]'
     .. '[!UpdateMeter ' .. bar .. '][!UpdateMeter ' .. bar .. '_Text]')
 end
@@ -196,6 +200,31 @@ local function highlight(list, idx)
   styleBar(list, idx, true)
   bang('[!SetOption MeterChevron Y "#OptionY' .. idx .. '#"][!ShowMeter MeterChevron][!UpdateMeter MeterChevron]')
   glide('MeterCursor', dotHome(idx))
+end
+
+-- click feedback: a white flash over the clicked bar that fades out (MeasureAnim list 4)
+local pulseFrame, pulseFrames = 0, 10
+
+local function pulseShape(alpha)
+  return '[!SetOption MeterPulse Shape "Rectangle 0,0,#OptionSelectedW#,#OptionH#,3 | Fill Color 255,255,255,' .. alpha .. ' | StrokeWidth 0"]'
+end
+
+local function pulse(idx)
+  pulseFrame, pulseFrames = 0, math.max(1, num('PulseFrames'))
+  bang('[!SetOption MeterPulse Y "#OptionY' .. idx .. '#"]' .. pulseShape(num('PulsePeakAlpha'))
+    .. '[!ShowMeter MeterPulse][!UpdateMeter MeterPulse][!Redraw]'
+    .. '[!CommandMeasure MeasureAnim "Stop 4"][!CommandMeasure MeasureAnim "Execute 4"]')
+end
+
+-- called by MeasureAnim list 4 once per frame: fade the flash out
+function PulseStep()
+  pulseFrame = pulseFrame + 1
+  local left = 1 - math.min(pulseFrame / pulseFrames, 1)
+  bang(pulseShape(math.floor(num('PulsePeakAlpha') * left * left)) .. '[!UpdateMeter MeterPulse][!Redraw]')
+end
+
+function PulseDone()
+  bang('[!HideMeter MeterPulse][!Redraw]')
 end
 
 -- -----------------------------------------------------------------------------
@@ -316,7 +345,8 @@ local function closeOpenMenu()
   listStack, selectedOption, shownOption, hoveredOption = {}, {}, {}, nil
   stopGlide('MeterCursor')
   HidePanels()
-  bang('[!CommandMeasure MeasureAnim "Stop 3"][!HideMeter MeterCursor][!HideMeter MeterChevron]')
+  bang('[!CommandMeasure MeasureAnim "Stop 3"][!CommandMeasure MeasureAnim "Stop 4"]'
+    .. '[!HideMeter MeterCursor][!HideMeter MeterChevron][!HideMeter MeterPulse]')
   openMenu = nil
 end
 
@@ -330,8 +360,9 @@ function Reset()
   frames = math.max(1, num('AnimFrames'))
   openMenu, selectedIcon, openPanel, hoveredOption = nil, nil, nil, nil
   listStack, selectedOption, shownOption, tweens = {}, {}, {}, {}
-  bang('[!CommandMeasure MeasureAnim "Stop 1"][!CommandMeasure MeasureAnim "Stop 2"][!CommandMeasure MeasureAnim "Stop 3"]'
-    .. '[!HideMeterGroup Menus][!HideMeterGroup Panels]'
+  bang('[!CommandMeasure MeasureAnim "Stop 1"][!CommandMeasure MeasureAnim "Stop 2"]'
+    .. '[!CommandMeasure MeasureAnim "Stop 3"][!CommandMeasure MeasureAnim "Stop 4"]'
+    .. '[!HideMeterGroup Menus][!HideMeterGroup Panels][!HideMeter MeterPulse]'
     .. '[!DisableMeasureGroup NowPlayingMeasures][!DisableMeasureGroup StatusMeasures]'
     .. '[!HideMeter MeterIconGlow][!HideMeter MeterCursor][!HideMeter MeterChevron]'
     .. '[!SetOptionGroup Icons ImageTint "#IconTintNormal#"][!SetOption MeterTitle Text ""]'
@@ -468,6 +499,7 @@ function ClickOption(section)
   if not idx or list ~= currentList() then return end
   selectedOption[list] = idx
   highlight(list, idx)
+  pulse(idx)
   local action = SKIN:GetMeter('Opt_' .. list .. '_' .. idx):GetOption('MenuAction')
   log('click ' .. list .. ' option ' .. idx .. ' -> ' .. action)
   if action and action ~= '' then bang(action) end

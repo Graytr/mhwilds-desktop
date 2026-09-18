@@ -49,9 +49,30 @@ MouseLeaveAction=[!CommandMeasure MenuScript "LeaveOption('#CURRENTSECTION#')"]
 LeftMouseUpAction=[!CommandMeasure MenuScript "ClickOption('#CURRENTSECTION#')"]
 RightMouseUpAction=[!CommandMeasure MenuScript "BackMenu()"]
 
+; the arrow next to an option that opens a sub-menu or a panel
+[StyleOptionArrow]
+ImageName=#@#Images\chevrons.png
+X=#ArrowX#
+W=#ArrowW#
+H=#ArrowH#
+Hidden=1
+
+; add one of these after the base style to put a sub-menu's meters in the second column
+[StyleSubBarColumn]
+X=#SubOptionsX#
+
+[StyleSubTextColumn]
+X=(#SubOptionsX# + #OptionTextDX#)
+
+[StyleSubArrowColumn]
+X=#SubArrowX#
+
 ; --- Panels -------------------------------------------------------------------
+; every panel meter re-reads its options each update (DynamicVariables) so that
+; Menu.lua can move a panel by changing the PanelX variable
 
 [StylePanelText]
+DynamicVariables=1
 FontFace=#FontFamily#
 FontColor=#FontColor#
 FontSize=#PanelFontSize#
@@ -62,6 +83,7 @@ ClipString=1
 Hidden=1
 
 [StylePanelTitle]
+DynamicVariables=1
 FontFace=#FontFamily#
 FontColor=#FontColor#
 FontSize=#PanelTitleFontSize#
@@ -73,6 +95,7 @@ Hidden=1
 
 ; small text buttons in panel headers: turn green under the mouse
 [StylePanelButton]
+DynamicVariables=1
 FontFace=#FontFamily#
 FontColor=#OptionTextColor#
 FontSize=#PanelFontSize#
@@ -85,8 +108,9 @@ MouseLeaveAction=[!SetOption #CURRENTSECTION# FontColor "#OptionTextColor#"][!Up
 
 ; one row of the file list: an all-but-invisible hit area that Menu.lua tints on hover
 [StyleFileRow]
+DynamicVariables=1
 Shape=Rectangle 0,0,#PanelInnerW#,#FileRowH#,3 | Fill Color 0,0,0,1 | StrokeWidth 0
-X=#PanelInnerX#
+X=(#PanelX# + #PanelPad#)
 Hidden=1
 MouseOverAction=[!CommandMeasure MenuScript "FileRowHover('#CURRENTSECTION#')"]
 MouseLeaveAction=[!CommandMeasure MenuScript "FileRowLeave('#CURRENTSECTION#')"]
@@ -96,6 +120,7 @@ MouseScrollDownAction=[!CommandMeasure MenuScript "FileListScroll(1)"]
 
 ; the icon and name drawn on a row forward the same events (their names end in the row number)
 [StyleFileRowChild]
+DynamicVariables=1
 Hidden=1
 MouseOverAction=[!CommandMeasure MenuScript "FileRowHover('#CURRENTSECTION#')"]
 MouseLeaveAction=[!CommandMeasure MenuScript "FileRowLeave('#CURRENTSECTION#')"]
@@ -104,16 +129,18 @@ MouseScrollUpAction=[!CommandMeasure MenuScript "FileListScroll(-1)"]
 MouseScrollDownAction=[!CommandMeasure MenuScript "FileListScroll(1)"]
 
 [StyleStatusLabel]
+DynamicVariables=1
 FontFace=#FontFamily#
 FontColor=#OptionTextColor#
 FontSize=#PanelFontSize#
 StringEffect=Border
 FontEffectColor=0,0,0,200
 AntiAlias=1
-X=#PanelInnerX#
+X=(#PanelX# + #PanelPad#)
 Hidden=1
 
 [StyleStatusValue]
+DynamicVariables=1
 FontFace=#FontFamily#
 FontColor=#FontColor#
 FontSize=#PanelFontSize#
@@ -125,10 +152,11 @@ X=(#PanelX# + #PanelW# - #PanelPad#)
 Hidden=1
 
 [StyleStatusBar]
+DynamicVariables=1
 BarOrientation=Horizontal
 BarColor=#AccentGreen#,220
 SolidColor=255,255,255,25
-X=#PanelInnerX#
+X=(#PanelX# + #PanelPad#)
 W=#PanelInnerW#
 H=(0.6*#SizeMultiplier#)
 Hidden=1

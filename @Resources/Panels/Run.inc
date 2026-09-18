@@ -10,7 +10,8 @@ Group=Panels | Panel_Run
 [mRun]
 Measure=Plugin
 Plugin=InputText
-X=#PanelInnerX#
+DynamicVariables=1
+X=(#PanelX# + #PanelPad#)
 Y=(#PanelBodyY# + (0.5*#SizeMultiplier#))
 W=#PanelInnerW#
 H=(3.5*#SizeMultiplier#)
@@ -24,6 +25,7 @@ Command1=["$UserInput$"]
 
 [PanelRunBg]
 Meter=Shape
+DynamicVariables=1
 MeterStyle=StyleRun
 X=#PanelX#
 Y=#PanelY#
@@ -33,7 +35,7 @@ Hidden=1
 [PanelRunHeader]
 Meter=String
 MeterStyle=StylePanelTitle | StyleRun
-X=#PanelInnerX#
+X=(#PanelX# + #PanelPad#)
 Y=(#PanelY# + #PanelPad#)
 W=#PanelInnerW#
 Text=Run a command, then press Enter (click here to reopen the box)

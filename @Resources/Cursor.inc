@@ -1,6 +1,6 @@
 ; ==============================================================================
-; Indicators drawn on top of everything: the chevron at the right end of the
-; selected option bar, and the green dot. Menu.lua moves them; both start hidden.
+; Indicators drawn on top of everything: the click flash and the green dot.
+; Menu.lua moves them; both start hidden.
 ; ==============================================================================
 
 ; white flash over the clicked option bar; Menu.lua shows it and fades it out
@@ -9,15 +9,6 @@ Meter=Shape
 X=#OptionsX#
 Y=#OptionY1#
 Shape=Rectangle 0,0,#OptionSelectedW#,#OptionH#,3 | Fill Color 255,255,255,0 | StrokeWidth 0
-Hidden=1
-
-[MeterChevron]
-Meter=Image
-ImageName=#@#Images\chevrons.png
-X=#ChevronX#
-Y=#OptionY1#
-W=#ChevronW#
-H=#ChevronH#
 Hidden=1
 
 [MeterCursor]

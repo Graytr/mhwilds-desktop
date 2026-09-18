@@ -30,6 +30,7 @@ W=#OptionW#
 H=#OptionH#
 Hidden=1
 MouseOverAction=[!CommandMeasure MenuScript "HoverOption('#CURRENTSECTION#')"]
+MouseLeaveAction=[!CommandMeasure MenuScript "LeaveOption('#CURRENTSECTION#')"]
 LeftMouseUpAction=[!CommandMeasure MenuScript "ClickOption('#CURRENTSECTION#')"]
 
 [StyleOptionText]
@@ -43,6 +44,7 @@ X=(#OptionsX# + #OptionTextDX#)
 Hidden=1
 ; the label sits on top of its bar, so it needs the same actions
 MouseOverAction=[!CommandMeasure MenuScript "HoverOption('#CURRENTSECTION#')"]
+MouseLeaveAction=[!CommandMeasure MenuScript "LeaveOption('#CURRENTSECTION#')"]
 LeftMouseUpAction=[!CommandMeasure MenuScript "ClickOption('#CURRENTSECTION#')"]
 
 ; --- Panels -------------------------------------------------------------------

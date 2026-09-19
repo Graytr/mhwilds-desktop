@@ -1,27 +1,35 @@
 # mhwilds-desktop
 
-A Rainmeter skin that turns your desktop into the Monster Hunter Wilds tent menu, with every option wired to something useful on your PC.
+A Rainmeter skin that turns your desktop into the Monster Hunter Wilds tent menu, with every option wired to something useful on your PC. A fan project; not affiliated with Capcom.
 
-Hover an icon to select it (the glow follows), click it to open its menu. Hover an option to preview it, click it to select it and run it; when you move away the highlight falls back to what you clicked. Options marked with an arrow open something to the right: a sub-menu in a second column, or a panel. Right-click any option to close the sub-menu (or, with none open, the menu). Click the open icon again to close everything.
+## Install
 
-## What the menus do
+1. Clone or copy this folder into your Rainmeter `Skins` folder as `mhwilds-desktop`.
+2. In Rainmeter's Manage window, load `mhwilds-desktop\MHWildsMenu.ini`.
+3. Drop shortcuts (`.lnk` or `.url`) to your programs into `@Resources\Customize\Programs` and to your games into `@Resources\Customize\Games`. Git ignores their contents, so they stay yours.
+4. Set `MediaPlayer` (and `MediaPlayerPath`) in `@Resources\Variables.inc` if you use something other than Spotify.
+
+Needs Rainmeter 4.4 or newer. Everything else it uses (Lua, FileView, ActionTimer, InputText) ships with Rainmeter.
+
+## Using it
+
+- Hover an icon to select it; the glow follows. Click it to open its menu, click it again to close everything.
+- Hover an option to preview it, click it to select it and run it. When you move away, the highlight falls back to what you clicked.
+- Options with an arrow open something to the right: a sub-menu in a second column, or a panel. Right-click any option to close the sub-menu, or the menu if none is open.
+- Folders open in the skin's own file list. Click a row to open it, scroll with the wheel, Back goes up a folder, Open Folder opens the real Explorer window. Clicking any other option closes the panel.
 
 | Menu | Options |
 |---|---|
-| Item Box | Item Pouch opens a column of quick places (Desktop, Downloads newest first). Item Box opens a column of permanent ones (This PC as a drive list, Documents). Sell Items opens the Recycle Bin. |
+| Item Box | Item Pouch: Desktop, Downloads (newest first). Item Box: This PC (drive list), Documents. Sell Items: the Recycle Bin. |
 | Equipment | Change Equipment (your program shortcuts), Customize Bowgun (Windows Settings), View Loadout (Task Manager) |
 | Palico | Palico Status (CPU, memory, disk, network, uptime), Call Discord, Devices |
-| Quest | Quest Board (your game shortcuts), Post a Quest (Steam library), Return to Camp opens a column with Sleep (immediate), Restart and Shut Down (15 second countdown) and Cancel Shutdown |
+| Quest | Quest Board (your game shortcuts), Post a Quest (Steam library), Return to Camp: Sleep (immediate), Restart and Shut Down (15 second countdown), Cancel Shutdown |
 | Audio | Now Playing (media panel with transport buttons), Sound Settings, Volume Mixer |
 | Appearance | Manage Rainmeter, Refresh Skins, Wallpaper, Edit This Skin, Run Command |
 
-Folders open in the skin's own file list, to the right of the open columns; its Open Folder button opens the real Explorer window, Back goes up one folder, and the mouse wheel scrolls. Clicking any other option closes the panel.
+Desktop, Documents and Downloads are found through Windows, so they work even when those folders live on another drive.
 
-- Put shortcuts (`.lnk` or `.url`) in `@Resources\Customize\Programs` and `@Resources\Customize\Games`. Git ignores their contents.
-- Set `MediaPlayer` (and `MediaPlayerPath`) in `Variables.inc` to the player you use.
-- Desktop, Documents and Downloads are found through Windows, so they work even when those folders live on another drive.
-
-## Layout
+## How it is built
 
 | Path | What it is |
 |---|---|
@@ -32,8 +40,10 @@ Folders open in the skin's own file list, to the right of the open columns; its 
 | `@Resources/Menus/<Menu>.inc` | One file per icon: its list of options plus any sub-menu lists. |
 | `@Resources/Panels/*.inc` | The panels that open to the right: file list, Now Playing, Palico status, run box. |
 | `@Resources/Cursor.inc` | The click flash, the green dot and the animation timer, included last so they draw on top. |
-| `@Resources/Scripts/Menu.lua` | All state: which icon is selected, which columns and panel are open, which options are highlighted, plus the glides. |
+| `@Resources/Scripts/Menu.lua` | All behaviour: which icon is selected, which columns and panel are open, which options are highlighted, and the glides. |
 | `@Resources/Images/` | Artwork, kept at about twice its on-screen size. |
+
+The INI files only describe how things look. Every mouse action calls a function in `Menu.lua`, which is heavily commented and is the place to read if you want to change behaviour.
 
 ## Adding or changing an option
 
@@ -60,15 +70,15 @@ Y=#OptionY1#
 
 `MenuAction` is anything Rainmeter can run: a program or path in `["quotes"]`, bangs such as `[!Manage]`, or a call into the script:
 
-- `ShowFolder('GamesPath', 'Name', 'Games', 'lnk;url')` shows a folder in the file list. The first argument is the name of a variable (or of a measure) that holds the path, the sort is `Name`, `Size`, `Type` or `Date`, then the header text and an optional extension filter. An empty path lists the drives.
+- `ShowFolder('GamesPath', 'Name', 'Games', 'lnk;url')` shows a folder in the file list. The first argument is the name of a variable (or a measure) holding the path, the sort is `Name`, `Size`, `Type` or `Date`, then the header text and an optional extension filter. An empty path lists the drives.
 - `ShowPanel('Status')` shows a panel: `FileList`, `NowPlaying`, `Status` or `Run`.
-- `OpenSubmenu('Camp')` opens the list `Camp` in the second column; `BackMenu()` closes it again.
+- `OpenSubmenu('Camp')` opens the list `Camp` in the second column; `BackMenu()` closes it.
 
 To add a sixth option, copy a group, use the next number and `OptionY6`.
 
 ## Adding a sub-menu
 
-A sub-menu is another list in the same file whose meters use the second-column styles. Give it a style that puts it in the `Menus` group, its `Opt_<List>_<N>` groups, and point a parent option at it with `OpenSubmenu`:
+A sub-menu is another list in the same file whose meters add the second-column styles. Give it a style that puts it in the `Menus` group, its own `Opt_<List>_<N>` groups, and point a parent option at it with `OpenSubmenu`:
 
 ```ini
 [StyleCamp]
@@ -91,14 +101,14 @@ An arrow in the second column uses `StyleOptionArrow | StyleSubArrowColumn`.
 
 ## Conventions
 
-- Icons are `Icon_<Menu>`; option bars `Opt_<List>_<N>` with labels `Opt_<List>_<N>_Text` and optional arrows `Opt_<List>_<N>_Arrow`, where a list is a menu (same name as its icon) or a sub-menu. `MenuTitle` on an icon is the header text.
+- Icons are `Icon_<Menu>`; option bars `Opt_<List>_<N>` with labels `Opt_<List>_<N>_Text` and optional arrows `Opt_<List>_<N>_Arrow`. A list is a menu (same name as its icon) or a sub-menu. `MenuTitle` on an icon is the header text.
 - Every list meter is in groups `Menus` and `Menu_<List>`; every panel meter in `Panels` and `Panel_<Name>`. One bang shows or hides a whole list or panel.
 - Panel measures live in `<Name>Measures` groups and only run while their panel is showing. Panel meters use `DynamicVariables=1` and position themselves from `PanelX`, which the script sets to `PanelXNear` or `PanelXFar` depending on whether a second column is open.
 - Include paths are anchored with `#@#` (the `@Resources` folder). That is what lets an included file include other files: a relative path would be resolved from the including file's own folder.
 
-## Tips
+## Tips and gotchas
 
 - Set `DebugLog=1` in `Variables.inc` and the script narrates what it does in the Rainmeter log (`%APPDATA%\Rainmeter\Rainmeter.log`). Refresh the skin after a change and read the log for errors.
 - Notepad++ highlights `.inc` files as INI if you add `inc` under Settings, Style Configurator, ini, User ext.
-- Rainmeter bakes a variable's references to other variables when the skin loads, so a variable derived from one that the script changes at runtime (such as `PanelX`) will not follow it. Write the expression in the meter instead.
+- Rainmeter bakes a variable's references to other variables when the skin loads, so a variable derived from one the script changes at runtime (such as `PanelX`) will not follow it. Write the expression in the meter instead.
 - Rainmeter counts hidden meters' positions when sizing the skin window, so the transparent window is wider than the drawn menu. Transparent areas are click-through, so nothing underneath is blocked.

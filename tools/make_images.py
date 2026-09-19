@@ -1,0 +1,86 @@
+"""Paints the skin's generated artwork into @Resources/Images, modelled on the game's tent menu.
+
+block_1.png .. block_6.png   the translucent brown block behind a list of 1 to 6 options: soft
+                             edges, fading out towards the right like the game's
+bar_selected.png             the solid green bar over the selected option, a little brighter at
+                             the left with a faint diagonal weave (Menu.lua draws this same image
+                             through BarTintDim for the highlight of a column without focus)
+
+Everything is painted at twice its on-screen size (OptionW x OptionH = 500 x 50 with
+SizeMultiplier=10). Needs Pillow:  python -m pip install pillow
+Change the numbers below, run  python tools/make_images.py  and refresh the skin.
+"""
+import math
+import os
+import random
+
+from PIL import Image
+
+W, ROW = 1000, 100
+OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "@Resources", "Images")
+
+# the block behind a list: warm dark brown, 62% opaque at the left, gone by the right edge
+BLOCK_RGB = (70, 56, 40)
+BLOCK_ALPHA = 0.62
+BLOCK_FADE_START = 0.55         # where (0..1 across the bar) the fade to transparent begins
+BLOCK_FEATHER = 6               # soft left, top and bottom edges, in painted pixels
+
+# the selected bar: the game's yellow-green, solid all the way across
+GREEN = (140, 188, 58)
+GREEN_ALPHA = 0.95
+GREEN_FEATHER = 3               # soft edges all round, in painted pixels
+LEFT_BRIGHT, RIGHT_BRIGHT = 1.08, 0.90   # brightness at the left edge and at the right edge
+WEAVE_PERIOD, WEAVE_DEPTH = 14, 0.05     # diagonal texture: pixels per stripe, +/- brightness
+GRAIN = 0.02                             # random per-pixel brightness jitter
+
+
+def smoothstep(t):
+    t = min(max(t, 0.0), 1.0)
+    return t * t * (3 - 2 * t)
+
+
+def clamp(v):
+    return max(0, min(255, int(round(v))))
+
+
+def feather(distance, width):
+    """0 at the very edge, 1 once `width` pixels inside it."""
+    return smoothstep((distance + 0.5) / width) if width > 0 else 1.0
+
+
+def block(rows):
+    h = rows * ROW
+    im = Image.new("RGBA", (W, h))
+    px = im.load()
+    for x in range(W):
+        u = x / (W - 1)
+        a = BLOCK_ALPHA * feather(x, BLOCK_FEATHER)
+        if u > BLOCK_FADE_START:
+            a *= 1 - smoothstep((u - BLOCK_FADE_START) / (1 - BLOCK_FADE_START))
+        for y in range(h):
+            ay = a * feather(y, BLOCK_FEATHER) * feather(h - 1 - y, BLOCK_FEATHER)
+            px[x, y] = BLOCK_RGB + (clamp(255 * ay),)
+    return im
+
+
+def selected():
+    random.seed(7)
+    im = Image.new("RGBA", (W, ROW))
+    px = im.load()
+    for x in range(W):
+        u = x / (W - 1)
+        a = GREEN_ALPHA * feather(x, GREEN_FEATHER) * feather(W - 1 - x, GREEN_FEATHER)
+        bright = LEFT_BRIGHT + (RIGHT_BRIGHT - LEFT_BRIGHT) * u
+        for y in range(ROW):
+            ay = a * feather(y, GREEN_FEATHER) * feather(ROW - 1 - y, GREEN_FEATHER)
+            weave = math.sin(2 * math.pi * (x + y) / WEAVE_PERIOD) * WEAVE_DEPTH
+            b = bright * (1 + weave + random.uniform(-GRAIN, GRAIN))
+            px[x, y] = (clamp(GREEN[0] * b), clamp(GREEN[1] * b), clamp(GREEN[2] * b), clamp(255 * ay))
+    return im
+
+
+if __name__ == "__main__":
+    for rows in range(1, 7):
+        block(rows).save(os.path.join(OUT, "block_%d.png" % rows))
+    selected().save(os.path.join(OUT, "bar_selected.png"))
+    print("painted block_1.png to block_6.png and bar_selected.png in", os.path.normpath(OUT))

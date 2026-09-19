@@ -12,6 +12,7 @@ Naming conventions the script depends on
                          A list is either a menu (same name as its icon) or a sub-menu.
   Opt_<List>_<N>_Text    the label drawn on top of that bar.
   Opt_<List>_<N>_Arrow   the arrow shown next to options that open something to the right.
+  Bg_<List>              the translucent block drawn behind all of a list's options.
   group Menus            every list meter (hidden together).
   group Menu_<List>      the meters of one list (shown together).
   group Icons            the eight icons.
@@ -187,12 +188,12 @@ local function moveDot(list, idx) glide('MeterCursor', dotHome(list, idx)) end
 -- the list whose highlight is drawn bright: the hovered one, else the deepest open list
 local function focusList() return hovered and hovered.list or deepest() end
 
--- state is 'normal' (the dark block), 'selected' (the green bar) or 'dim' (the green bar
--- seen through BarTintDim: the highlight of a list that does not have focus)
+-- state is 'normal' (no bar: the list's block shows through), 'selected' (the green bar)
+-- or 'dim' (the green bar seen through BarTintDim: the highlight of a list without focus)
 local function styleBar(list, idx, state)
   local bar = 'Opt_' .. list .. '_' .. idx
   local lit = state ~= 'normal'
-  local img   = lit and '#BarImageSelected#' or '#BarImageNormal#'
+  local img   = lit and '#BarImageSelected#' or ''
   local col   = lit and '#OptionTextColorSelected#' or '#OptionTextColor#'
   local alpha = lit and '#BarSelectedAlpha#' or '255'
   local tint  = state == 'dim' and '#BarTintDim#' or '255,255,255,255'

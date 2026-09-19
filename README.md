@@ -44,13 +44,13 @@ The icons and top-level labels follow the game's current tent menu (eight icons)
 | `@Resources/Cursor.inc` | The click flash, the green dot and the animation timer, included last so they draw on top. |
 | `@Resources/Scripts/Menu.lua` | All behaviour: which icon is selected, which columns and panel are open, which options are highlighted, and the glides. |
 | `@Resources/Images/` | Artwork, kept at about twice its on-screen size. |
-| `tools/make_bars.py` | Paints the two option-bar images: the dark block behind unselected options and the green bar that fades out over the selected one. |
+| `tools/make_images.py` | Paints the generated artwork: the translucent block behind each list and the green bar over the selected option. |
 
 The INI files only describe how things look. Every mouse action calls a function in `Menu.lua`, which is heavily commented and is the place to read if you want to change behaviour.
 
 ## Adding or changing an option
 
-Every option is a bar plus a label in its menu's file, and an arrow if it opens something to the right:
+Every list starts with its block (`Bg_<List>`, sized by the number of options), then every option is a bar plus a label, and an arrow if it opens something to the right:
 
 ```ini
 [Opt_Quest_1]
@@ -77,15 +77,21 @@ Y=#OptionY1#
 - `ShowPanel('Status')` shows a panel: `FileList`, `NowPlaying`, `Status` or `Run`.
 - `OpenSubmenu('Rest')` opens the list `Rest` in the second column; `BackMenu()` closes it.
 
-To add a sixth option, copy a group, use the next number and `OptionY6`.
+To add a sixth option, copy a group, use the next number and `OptionY6`, and point the list's block at `block_6.png` with `H=(6*#OptionPitch#)`.
 
 ## Adding a sub-menu
 
-A sub-menu is another list in the same file whose meters add the second-column styles. Give it a style that puts it in the `Menus` group, its own `Opt_<List>_<N>` groups, and point a parent option at it with `OpenSubmenu`:
+A sub-menu is another list in the same file whose meters add the second-column styles. Give it a style that puts it in the `Menus` group, a block, its own `Opt_<List>_<N>` groups, and point a parent option at it with `OpenSubmenu`:
 
 ```ini
 [StyleRest]
 Group=Menus | Menu_Rest
+
+[Bg_Rest]
+Meter=Image
+MeterStyle=StyleListBlock | StyleSubBlockColumn | StyleRest
+ImageName=#@#Images\block_5.png
+H=(5*#OptionPitch#)
 
 [Opt_Rest_1]
 Meter=Image
@@ -114,5 +120,5 @@ An arrow in the second column uses `StyleOptionArrow | StyleSubArrowColumn`.
 - Set `DebugLog=1` in `Variables.inc` and the script narrates what it does in the Rainmeter log (`%APPDATA%\Rainmeter\Rainmeter.log`). Refresh the skin after a change and read the log for errors.
 - Notepad++ highlights `.inc` files as INI if you add `inc` under Settings, Style Configurator, ini, User ext.
 - Rainmeter bakes a variable's references to other variables when the skin loads, so a variable derived from one the script changes at runtime (such as `PanelX`) will not follow it. Write the expression in the meter instead.
-- To change the bars' colour, fade or texture, edit the numbers at the top of `tools/make_bars.py`, run it with Python (it needs Pillow: `python -m pip install pillow`) and refresh the skin.
+- To change the blocks' or bars' colour, fade or texture, edit the numbers at the top of `tools/make_images.py`, run it with Python (it needs Pillow: `python -m pip install pillow`) and refresh the skin.
 - Rainmeter counts hidden meters' positions when sizing the skin window, so the transparent window is wider than the drawn menu. Transparent areas are click-through, so nothing underneath is blocked.

@@ -21,7 +21,8 @@ AccentGreen=176,214,64
 CursorCoreColor=232,255,150,255
 
 ; --- Images -------------------------------------------------------------------
-BarImageNormal=#@#Images\bar_normal.png
+; the solid green bar over the selected option (unselected options have no bar of their own:
+; each list draws one translucent block, Bg_<List>, behind all of its options)
 BarImageSelected=#@#Images\bar_selected.png
 ; the highlight of a list that does not have focus (the first column while a sub-menu
 ; is open) is the green bar seen through this tint, which turns it olive like the game
@@ -61,9 +62,8 @@ OptionsX=(#MainMenuX# + (9*#SizeMultiplier#))
 OptionsY=(#MainMenuY# + (18*#SizeMultiplier#))
 OptionPitch=(5*#SizeMultiplier#)
 OptionH=(5*#SizeMultiplier#)
-; both bar images are painted the full width (tools\make_bars.py): a dark translucent
-; block behind an unselected option, a green bar that fades out to the right over the
-; selected one
+; the block behind a list and the bar over its selected option are both this wide
+; (tools\make_images.py paints them)
 OptionW=(50*#SizeMultiplier#)
 OptionTextDX=(3*#SizeMultiplier#)
 OptionTextDY=(1.1*#SizeMultiplier#)

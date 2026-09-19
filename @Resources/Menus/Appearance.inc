@@ -1,18 +1,27 @@
 ; ==============================================================================
 ; Appearance menu: how things look. Your Palico's gear is this skin; Change Appearance is Windows itself.
 ;
-; Every option is a bar (Opt_<List>_<N>) plus its label (Opt_<List>_<N>_Text), and an
-; arrow (Opt_<List>_<N>_Arrow) when it opens something to the right. MenuAction on the
-; bar runs when the option is clicked: bangs, a program or path in ["quotes"], or a
-; Menu.lua call such as ShowFolder, ShowPanel or OpenSubmenu.
+; Every list is a block (Bg_<List>, the translucent panel behind the options) followed by
+; its options: a bar (Opt_<List>_<N>) plus its label (Opt_<List>_<N>_Text), and an arrow
+; (Opt_<List>_<N>_Arrow) when it opens something to the right. MenuAction on the bar runs
+; when the option is clicked: bangs, a program or path in ["quotes"], or a Menu.lua call
+; such as ShowFolder, ShowPanel or OpenSubmenu.
 ; A sub-menu is a second list (Style<List> / Opt_<List>_<N>) using the SubColumn styles;
 ; it opens in a column to the right of the list that owns it.
-; To add an option, copy a group, bump <N> and use the next OptionY variable.
+; To add an option, copy a group, bump <N>, use the next OptionY variable, and point the
+; block at the next block_<N>.png with H=(<N>*#OptionPitch#).
 ; ==============================================================================
 
 ; --- Appearance: the list shown when the hunter icon is clicked
 [StyleAppearance]
 Group=Menus | Menu_Appearance
+
+; the block behind the whole list, drawn first so the bars sit on it
+[Bg_Appearance]
+Meter=Image
+MeterStyle=StyleListBlock | StyleAppearance
+ImageName=#@#Images\block_4.png
+H=(4*#OptionPitch#)
 
 [Opt_Appearance_1]
 Meter=Image
@@ -76,6 +85,13 @@ Text=Seikret Customization
 [StyleSkin]
 Group=Menus | Menu_Skin
 
+; the block behind the whole list, drawn first so the bars sit on it
+[Bg_Skin]
+Meter=Image
+MeterStyle=StyleListBlock | StyleSubBlockColumn | StyleSkin
+ImageName=#@#Images\block_3.png
+H=(3*#OptionPitch#)
+
 [Opt_Skin_1]
 Meter=Image
 MeterStyle=StyleOptionBar | StyleSubBarColumn | StyleSkin
@@ -115,6 +131,13 @@ Text=Edit This Skin
 ; --- Look: Windows personalisation, in the second column
 [StyleLook]
 Group=Menus | Menu_Look
+
+; the block behind the whole list, drawn first so the bars sit on it
+[Bg_Look]
+Meter=Image
+MeterStyle=StyleListBlock | StyleSubBlockColumn | StyleLook
+ImageName=#@#Images\block_5.png
+H=(5*#OptionPitch#)
 
 [Opt_Look_1]
 Meter=Image

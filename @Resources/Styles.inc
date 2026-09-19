@@ -23,8 +23,16 @@ MouseOverAction=[!CommandMeasure MenuScript "HoverIcon('#CURRENTSECTION#')"]
 MouseLeaveAction=[!CommandMeasure MenuScript "LeaveIcon('#CURRENTSECTION#')"]
 LeftMouseUpAction=[!CommandMeasure MenuScript "ClickIcon('#CURRENTSECTION#')"]
 
+; the translucent block behind a whole list; the menu file sets its height from the
+; number of options (H=(<N>*#OptionPitch#)) and picks the matching block_<N>.png
+[StyleListBlock]
+X=#OptionsX#
+Y=#OptionY1#
+W=#OptionW#
+Hidden=1
+
+; an option bar shows no image of its own until Menu.lua selects it (BarImageSelected)
 [StyleOptionBar]
-ImageName=#BarImageNormal#
 X=#OptionsX#
 W=#OptionW#
 H=#OptionH#
@@ -63,6 +71,9 @@ LeftMouseUpAction=[!CommandMeasure MenuScript "ClickOption('#CURRENTSECTION#')"]
 RightMouseUpAction=[!CommandMeasure MenuScript "BackMenu()"]
 
 ; add one of these after the base style to put a sub-menu's meters in the second column
+[StyleSubBlockColumn]
+X=#SubOptionsX#
+
 [StyleSubBarColumn]
 X=#SubOptionsX#
 

@@ -1,18 +1,27 @@
 ; ==============================================================================
 ; Item menu: your files. Transfer Items holds the folders on this PC; the Crafting List is whatever you opened last.
 ;
-; Every option is a bar (Opt_<List>_<N>) plus its label (Opt_<List>_<N>_Text), and an
-; arrow (Opt_<List>_<N>_Arrow) when it opens something to the right. MenuAction on the
-; bar runs when the option is clicked: bangs, a program or path in ["quotes"], or a
-; Menu.lua call such as ShowFolder, ShowPanel or OpenSubmenu.
+; Every list is a block (Bg_<List>, the translucent panel behind the options) followed by
+; its options: a bar (Opt_<List>_<N>) plus its label (Opt_<List>_<N>_Text), and an arrow
+; (Opt_<List>_<N>_Arrow) when it opens something to the right. MenuAction on the bar runs
+; when the option is clicked: bangs, a program or path in ["quotes"], or a Menu.lua call
+; such as ShowFolder, ShowPanel or OpenSubmenu.
 ; A sub-menu is a second list (Style<List> / Opt_<List>_<N>) using the SubColumn styles;
 ; it opens in a column to the right of the list that owns it.
-; To add an option, copy a group, bump <N> and use the next OptionY variable.
+; To add an option, copy a group, bump <N>, use the next OptionY variable, and point the
+; block at the next block_<N>.png with H=(<N>*#OptionPitch#).
 ; ==============================================================================
 
 ; --- Item: the list shown when the item icon is clicked
 [StyleItem]
 Group=Menus | Menu_Item
+
+; the block behind the whole list, drawn first so the bars sit on it
+[Bg_Item]
+Meter=Image
+MeterStyle=StyleListBlock | StyleItem
+ImageName=#@#Images\block_5.png
+H=(5*#OptionPitch#)
 
 [Opt_Item_1]
 Meter=Image
@@ -92,6 +101,13 @@ Text=View/Sell Artian Materials
 ; --- Transfer: the places on this PC, in the second column
 [StyleTransfer]
 Group=Menus | Menu_Transfer
+
+; the block behind the whole list, drawn first so the bars sit on it
+[Bg_Transfer]
+Meter=Image
+MeterStyle=StyleListBlock | StyleSubBlockColumn | StyleTransfer
+ImageName=#@#Images\block_5.png
+H=(5*#OptionPitch#)
 
 [Opt_Transfer_1]
 Meter=Image

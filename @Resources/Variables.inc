@@ -18,7 +18,9 @@ IconTintHover=113,195,68,180
 IconTintSelected=176,214,64,255
 ; the green used by the glow and the dot
 AccentGreen=176,214,64
-CursorCoreColor=232,255,150,255
+CursorCoreColor=245,255,190,255
+; the halo is lighter than the bar so the dot reads as sitting on top of it
+CursorHaloColor=222,255,140
 
 ; --- Images -------------------------------------------------------------------
 BarImageNormal=#@#Images\bar_normal.png
@@ -102,10 +104,11 @@ BarSelectedAlpha=255
 DebugLog=0
 
 ; --- The dot ------------------------------------------------------------------
-CursorHaloRadius=(1.4*#SizeMultiplier#)
-CursorCoreRadius=(0.5*#SizeMultiplier#)
-; how far the centre of the dot sits inside the left edge of the selected bar
-CursorInsetX=(0.6*#SizeMultiplier#)
+CursorHaloRadius=(1.6*#SizeMultiplier#)
+CursorCoreRadius=(0.65*#SizeMultiplier#)
+; how far the centre of the dot sits inside the left edge of the selected bar (the game
+; puts it almost on the edge, half over the bar)
+CursorInsetX=(0.2*#SizeMultiplier#)
 
 ; --- Folders and programs the menus point at ----------------------------------
 ; Drop shortcuts (.lnk / .url) into the two Customize folders; git ignores them.

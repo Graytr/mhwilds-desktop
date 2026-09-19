@@ -1,6 +1,7 @@
 ; ==============================================================================
-; Main menu: background, title, the glow behind the selected icon, the eight icons,
-; and (at the bottom) the includes for the eight menus.
+; Main menu: background, title, the glow behind the selected icon and the eight icons.
+; The menus themselves are Menus\<Name>.inc, included from MHWildsMenu.ini right after
+; this file so that their option bars draw above the icons and below the dot.
 ;
 ; Each icon is named Icon_<Menu>. Menu.lua uses that name to find the matching
 ; menu group (Menu_<Menu>) and option bars (Opt_<Menu>_<N>). The custom
@@ -89,18 +90,3 @@ MeterStyle=StyleIcon
 ImageName=#@#Images\icon_appearance.png
 X=#IconX8#
 MenuTitle=Appearance Menu
-
-; --- Menus ----------------------------------------------------------------------
-; Each menu lives in its own file. Rainmeter does allow includes inside included
-; files; the catch is that a relative path is resolved from THIS file's folder,
-; so the paths must be anchored with #@#. Their meters are inserted right here,
-; after the icons, which puts the option bars above the icons in draw order.
-[IncludeMenus]
-@IncludeItem=#@#Menus\Item.inc
-@IncludeEquipment=#@#Menus\Equipment.inc
-@IncludePalico=#@#Menus\Palico.inc
-@IncludeBBQ=#@#Menus\BBQ.inc
-@IncludeQuest=#@#Menus\Quest.inc
-@IncludeLobby=#@#Menus\Lobby.inc
-@IncludeTentSettings=#@#Menus\TentSettings.inc
-@IncludeAppearance=#@#Menus\Appearance.inc

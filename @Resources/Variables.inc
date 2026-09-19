@@ -31,7 +31,8 @@ BarTintDim=170,160,140,255
 ; --- Main menu bar ------------------------------------------------------------
 MainMenuX=0
 MainMenuY=100
-BackgroundW=(70*#SizeMultiplier#)
+; the icon bar art is 80 units wide; its right end fades out (tools\make_images.py)
+BackgroundW=(80*#SizeMultiplier#)
 BackgroundH=(45*#SizeMultiplier#)
 
 TitleX=(#MainMenuX# + (6*#SizeMultiplier#))

@@ -44,7 +44,7 @@ The icons and top-level labels follow the game's current tent menu (eight icons)
 | `@Resources/Cursor.inc` | The click flash, the green dot and the animation timer, included last so they draw on top. |
 | `@Resources/Scripts/Menu.lua` | All behaviour: which icon is selected, which columns and panel are open, which options are highlighted, and the glides. |
 | `@Resources/Images/` | Artwork, kept at about twice its on-screen size. |
-| `tools/make_images.py` | Paints the generated artwork: the translucent block behind each list and the green bar over the selected option. |
+| `tools/make_images.py` | Paints the generated artwork: the translucent block behind each list, the green bar over the selected option, and the icon bar (widened from `tools/src/menu_bar.png` and faded out at its right end). |
 
 The INI files only describe how things look. Every mouse action calls a function in `Menu.lua`, which is heavily commented and is the place to read if you want to change behaviour.
 

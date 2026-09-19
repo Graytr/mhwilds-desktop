@@ -505,7 +505,7 @@ function RevertHover()
 end
 
 -- click: this option becomes the real selection, any panel closes (and, from the
--- first column, any sub-menu), then its action runs
+-- first column, any sub-menu too), then its action runs
 function ClickOption(section)
   local list, idx = parse(section)
   if not idx or not isOpen(list) then return end
@@ -515,7 +515,8 @@ function ClickOption(section)
   showBar(list, idx)
   moveDot(list, idx)
   pulse(list, idx)
-  if list == openMenu then closeSubmenu() else HidePanels() end
+  if list == openMenu then closeSubmenu() end   -- a first-column click also drops the sub-menu
+  HidePanels()                                   -- and any panel, whichever column was clicked
   local action = SKIN:GetMeter('Opt_' .. list .. '_' .. idx):GetOption('MenuAction')
   log('click ' .. list .. ' option ' .. idx .. ' -> ' .. action)
   if action and action ~= '' then bang(action) end

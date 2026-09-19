@@ -35,6 +35,8 @@ Layout (mirrors the in-game tent menu)
     Clicking the same icon again closes everything, panels included.
   * Hovering an option previews it: its bar lights up and the dot moves there. When the
     mouse leaves, the highlight falls back to the options that were actually clicked.
+  * Only the column with focus (the hovered one, else the deepest open one) shows its
+    highlight in bright green; the other column's is drawn olive (BarTintDim).
   * Clicking an option selects it for good, closes any panel (and, from the first
     column, any sub-menu) and runs its MenuAction.
   * BackMenu() (right-click on any option) closes the sub-menu; with none open it
@@ -182,15 +184,20 @@ end
 
 local function moveDot(list, idx) glide('MeterCursor', dotHome(list, idx)) end
 
--- selected = true gives the bar the highlighted artwork, width and label colour
-local function styleBar(list, idx, selected)
+-- the list whose highlight is drawn bright: the hovered one, else the deepest open list
+local function focusList() return hovered and hovered.list or deepest() end
+
+-- state is 'normal' (the dark block), 'selected' (the green bar) or 'dim' (the green bar
+-- seen through BarTintDim: the highlight of a list that does not have focus)
+local function styleBar(list, idx, state)
   local bar = 'Opt_' .. list .. '_' .. idx
-  local img = selected and '#BarImageSelected#' or '#BarImageNormal#'
-  local w   = selected and '#OptionSelectedW#' or '#OptionW#'
-  local col = selected and '#OptionTextColorSelected#' or '#OptionTextColor#'
-  local alpha = selected and '#BarSelectedAlpha#' or '255'
-  bang('[!SetOption ' .. bar .. ' ImageName "' .. img .. '"][!SetOption ' .. bar .. ' W "' .. w .. '"]'
-    .. '[!SetOption ' .. bar .. ' ImageAlpha "' .. alpha .. '"]'
+  local lit = state ~= 'normal'
+  local img   = lit and '#BarImageSelected#' or '#BarImageNormal#'
+  local col   = lit and '#OptionTextColorSelected#' or '#OptionTextColor#'
+  local alpha = lit and '#BarSelectedAlpha#' or '255'
+  local tint  = state == 'dim' and '#BarTintDim#' or '255,255,255,255'
+  bang('[!SetOption ' .. bar .. ' ImageName "' .. img .. '"][!SetOption ' .. bar .. ' ImageAlpha "' .. alpha .. '"]'
+    .. '[!SetOption ' .. bar .. ' ImageTint "' .. tint .. '"]'
     .. '[!SetOption ' .. bar .. '_Text FontColor "' .. col .. '"]'
     .. '[!UpdateMeter ' .. bar .. '][!UpdateMeter ' .. bar .. '_Text]')
 end
@@ -198,17 +205,24 @@ end
 -- light up option idx of a list (bar artwork and label); the dot moves separately
 local function showBar(list, idx)
   local prev = shownOption[list]
-  if prev == idx then return end
-  if prev then styleBar(list, prev, false) end
+  if prev and prev ~= idx then styleBar(list, prev, 'normal') end
   shownOption[list] = idx
-  styleBar(list, idx, true)
+  styleBar(list, idx, list == focusList() and 'selected' or 'dim')
+end
+
+-- after focus moves between the columns: bright highlight in the focused list, olive in the other
+local function applyFocus()
+  local f = focusList()
+  for _, list in ipairs({ openMenu, subMenu }) do
+    if shownOption[list] then styleBar(list, shownOption[list], list == f and 'selected' or 'dim') end
+  end
 end
 
 -- click feedback: a white flash over the clicked bar that fades out (MeasureAnim list 4)
 local pulseFrame, pulseFrames = 0, 10
 
 local function pulseShape(alpha)
-  return '[!SetOption MeterPulse Shape "Rectangle 0,0,#OptionSelectedW#,#OptionH#,3 | Fill Color 255,255,255,' .. alpha .. ' | StrokeWidth 0"]'
+  return '[!SetOption MeterPulse Shape "Rectangle 0,0,#OptionW#,#OptionH#,3 | Fill Color 255,255,255,' .. alpha .. ' | StrokeWidth 0"]'
 end
 
 local function pulse(list, idx)
@@ -341,7 +355,7 @@ local function showList(list)
 end
 
 local function hideList(list)
-  if shownOption[list] then styleBar(list, shownOption[list], false) end
+  if shownOption[list] then styleBar(list, shownOption[list], 'normal') end
   shownOption[list], selectedOption[list] = nil, nil
   bang('[!HideMeterGroup Menu_' .. list .. ']')
 end
@@ -351,6 +365,7 @@ local function closeSubmenu()
   hideList(subMenu)
   subMenu = nil
   HidePanels()
+  applyFocus()
 end
 
 local function closeOpenMenu()
@@ -454,7 +469,9 @@ function OpenSubmenu(list)
   subMenu = list
   showList(list)
   selectedOption[list] = 1
+  hovered = nil          -- focus moves to the new column although the mouse is still on the parent option
   showBar(list, 1)
+  applyFocus()
   moveDot(list, 1)   -- the dot glides from the clicked option across to the first sub-option
   bang('!Redraw')
   log('opened sub-menu ' .. list)
@@ -479,6 +496,7 @@ function HoverOption(section)
   bang('[!CommandMeasure MeasureAnim "Stop 3"]')
   hovered = { list = list, idx = idx }
   showBar(list, idx)
+  applyFocus()
   moveDot(list, idx)
   bang('!Redraw')
 end
@@ -513,6 +531,7 @@ function ClickOption(section)
   hovered = { list = list, idx = idx }
   selectedOption[list] = idx
   showBar(list, idx)
+  applyFocus()
   moveDot(list, idx)
   pulse(list, idx)
   if list == openMenu then closeSubmenu() end   -- a first-column click also drops the sub-menu

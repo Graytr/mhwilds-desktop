@@ -64,7 +64,7 @@ Text=View/Sell Items
 Meter=Image
 MeterStyle=StyleOptionBar | StyleItem
 Y=#OptionY4#
-MenuAction=[!CommandMeasure MenuScript "ShowPanel('Run')"][!CommandMeasure MenuScript mRun "ExecuteBatch 1"]
+MenuAction=[!CommandMeasure MenuScript "ShowPanel('Run')"][!CommandMeasure mRun "ExecuteBatch 1"]
 
 [Opt_Item_4_Text]
 Meter=String

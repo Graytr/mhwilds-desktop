@@ -18,7 +18,7 @@ Y=0
 ; Shape is the soft halo, Shape2 the bright core. Both are centred on the same point.
 Shape=Ellipse #CursorHaloRadius#,#CursorHaloRadius#,#CursorHaloRadius# | Fill RadialGradient CursorHalo | StrokeWidth 0
 Shape2=Ellipse #CursorHaloRadius#,#CursorHaloRadius#,#CursorCoreRadius# | Fill Color #CursorCoreColor# | StrokeWidth 0
-CursorHalo=0,0 | #AccentGreen#,200 ; 0.0 | #AccentGreen#,90 ; 0.45 | #AccentGreen#,0 ; 1.0
+CursorHalo=0,0 | #CursorHaloColor#,220 ; 0.0 | #AccentGreen#,120 ; 0.45 | #AccentGreen#,0 ; 1.0
 Hidden=1
 
 ; Drives the glides. Menu.lua starts a list with "Execute N"; every step asks the

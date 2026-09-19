@@ -35,10 +35,10 @@ The icons and top-level labels follow the game's current tent menu (eight icons)
 
 | Path | What it is |
 |---|---|
-| `MHWildsMenu.ini` | Root skin: `[Rainmeter]`, `[Metadata]`, the includes and the Lua measure. |
+| `MHWildsMenu.ini` | Root skin: `[Rainmeter]`, `[Metadata]`, every include in draw order, and the Lua measure. |
 | `@Resources/Variables.inc` | Every size, colour and path. Sizes are multiples of `SizeMultiplier`, so the whole skin scales together. |
 | `@Resources/Styles.inc` | MeterStyles shared by the icons, option bars, labels, arrows and panels, including their mouse actions. |
-| `@Resources/Menus/MainMenu.inc` | Background, title, the glow behind the selected icon, the eight icons, and the includes for the menus. |
+| `@Resources/Menus/MainMenu.inc` | Background, title, the glow behind the selected icon and the eight icons. |
 | `@Resources/Menus/<Menu>.inc` | One file per icon: its list of options plus any sub-menu lists. |
 | `@Resources/Panels/*.inc` | The panels that open to the right: file list, Now Playing, Palico status, run box. |
 | `@Resources/Cursor.inc` | The click flash, the green dot and the animation timer, included last so they draw on top. |
@@ -113,7 +113,7 @@ An arrow in the second column uses `StyleOptionArrow | StyleSubArrowColumn`.
 - Icons are `Icon_<Menu>`; option bars `Opt_<List>_<N>` with labels `Opt_<List>_<N>_Text` and optional arrows `Opt_<List>_<N>_Arrow`. A list is a menu (same name as its icon) or a sub-menu. `MenuTitle` on an icon is the header text.
 - Every list meter is in groups `Menus` and `Menu_<List>`; every panel meter in `Panels` and `Panel_<Name>`. One bang shows or hides a whole list or panel.
 - Panel measures live in `<Name>Measures` groups and only run while their panel is showing. Panel meters use `DynamicVariables=1` and position themselves from `PanelX`, which the script sets to `PanelXNear` or `PanelXFar` depending on whether a second column is open.
-- Include paths are anchored with `#@#` (the `@Resources` folder). That is what lets an included file include other files: a relative path would be resolved from the including file's own folder.
+- Every file is included from the root skin, in draw order. Rainmeter reads an include nested inside an included file only after all of the root's includes, which would draw those meters on top of everything else. Include paths are anchored with `#@#` (the `@Resources` folder).
 
 ## Tips and gotchas
 

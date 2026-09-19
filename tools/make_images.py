@@ -5,8 +5,8 @@ block_1.png .. block_6.png   the translucent brown block behind a list of 1 to 6
 bar_selected.png             the solid green bar over the selected option, a little brighter at
                              the left with a faint diagonal weave (Menu.lua draws this same image
                              through BarTintDim for the highlight of a column without focus)
-menu_bar.png                 the icon bar: tools/src/menu_bar.png widened and faded out at its
-                             right end, like the game's
+menu_bar.png                 the icon bar: tools/src/menu_bar.png widened, thinning gently from the
+                             Equipment icon to the Appearance icon and then fading out, like the game's
 
 Everything is painted at twice its on-screen size (OptionW x OptionH = 500 x 50 with
 SizeMultiplier=10). Needs Pillow:  python -m pip install pillow
@@ -36,13 +36,18 @@ WEAVE_PERIOD, WEAVE_DEPTH = 14, 0.05     # diagonal texture: pixels per stripe, 
 GRAIN = 0.02                             # random per-pixel brightness jitter
 
 # the icon bar: the source art, how wide to make it (BackgroundW = 80 units, drawn at half
-# size), how many painted pixels at the right end fade out, which interior column of the
-# source is copied to widen it, and where the source's right frame starts (it is dropped)
+# size), which interior column of the source is copied to widen it, and where the source's
+# right frame starts (it is dropped)
 MENU_BAR_SRC = os.path.join(os.path.dirname(os.path.abspath(__file__)), "src", "menu_bar.png")
 MENU_BAR_W = 1600
-MENU_BAR_FADE = 240
 MENU_BAR_TEMPLATE_X = 1200
 MENU_BAR_RIGHT_FRAME_X = 1392
+# its opacity along the bar, in painted pixels (2 per screen pixel): solid up to the Equipment
+# icon, a gentle slide down to MENU_BAR_ALPHA_AT_APPEARANCE under the Appearance icon, then a
+# steeper fade to nothing at the end. Icon N is centred at 2 * (N * 80 + 15).
+MENU_BAR_GENTLE_FROM = 350          # under the Equipment icon (icon 2)
+MENU_BAR_GENTLE_TO = 1310           # under the Appearance icon (icon 8)
+MENU_BAR_ALPHA_AT_APPEARANCE = 0.6
 
 
 def smoothstep(t):
@@ -90,6 +95,16 @@ def selected():
     return im
 
 
+def menu_bar_alpha(x):
+    if x <= MENU_BAR_GENTLE_FROM:
+        return 1.0
+    if x <= MENU_BAR_GENTLE_TO:
+        t = (x - MENU_BAR_GENTLE_FROM) / (MENU_BAR_GENTLE_TO - MENU_BAR_GENTLE_FROM)
+        return 1.0 + (MENU_BAR_ALPHA_AT_APPEARANCE - 1.0) * t
+    t = (x - MENU_BAR_GENTLE_TO) / (MENU_BAR_W - 1 - MENU_BAR_GENTLE_TO)
+    return MENU_BAR_ALPHA_AT_APPEARANCE * (1 - smoothstep(t))
+
+
 def menu_bar():
     src = Image.open(MENU_BAR_SRC).convert("RGBA")
     w, h = src.size
@@ -101,11 +116,12 @@ def menu_bar():
     for x in range(MENU_BAR_RIGHT_FRAME_X, MENU_BAR_W):                # widen with the template column
         for y in range(y0, y1 + 1):
             px[x, y] = sp[MENU_BAR_TEMPLATE_X, y]
-    for x in range(MENU_BAR_W - MENU_BAR_FADE, MENU_BAR_W):             # fade the right end out
-        k = 1 - smoothstep((x - (MENU_BAR_W - MENU_BAR_FADE)) / MENU_BAR_FADE)
-        for y in range(y0, y1 + 1):
-            r, g, b, a = px[x, y]
-            px[x, y] = (r, g, b, clamp(a * k))
+    for x in range(MENU_BAR_W):                                        # thin it out along its length
+        k = menu_bar_alpha(x)
+        if k < 1.0:
+            for y in range(y0, y1 + 1):
+                r, g, b, a = px[x, y]
+                px[x, y] = (r, g, b, clamp(a * k))
     return im
 
 

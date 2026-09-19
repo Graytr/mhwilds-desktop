@@ -1,9 +1,9 @@
 ; ==============================================================================
-; Main menu: background, title, the glow behind the selected icon, the six icons,
-; and (at the bottom) the includes for the six sub-menus.
+; Main menu: background, title, the glow behind the selected icon, the eight icons,
+; and (at the bottom) the includes for the eight menus.
 ;
 ; Each icon is named Icon_<Menu>. Menu.lua uses that name to find the matching
-; sub-menu group (Menu_<Menu>) and option bars (Opt_<Menu>_<N>). The custom
+; menu group (Menu_<Menu>) and option bars (Opt_<Menu>_<N>). The custom
 ; MenuTitle option is the header text shown while that icon is selected.
 ; ==============================================================================
 
@@ -34,12 +34,12 @@ Hidden=1
 
 ; --- Icons, in the same order as the in-game tent menu --------------------------
 
-[Icon_ItemBox]
+[Icon_Item]
 Meter=Image
 MeterStyle=StyleIcon
-ImageName=#@#Images\icon_item_box.png
+ImageName=#@#Images\icon_item.png
 X=#IconX1#
-MenuTitle=Item Box
+MenuTitle=Item Menu
 
 [Icon_Equipment]
 Meter=Image
@@ -55,36 +55,52 @@ ImageName=#@#Images\icon_palico.png
 X=#IconX3#
 MenuTitle=Palico Menu
 
+[Icon_BBQ]
+Meter=Image
+MeterStyle=StyleIcon
+ImageName=#@#Images\icon_bbq.png
+X=#IconX4#
+MenuTitle=BBQ Menu
+
 [Icon_Quest]
 Meter=Image
 MeterStyle=StyleIcon
 ImageName=#@#Images\icon_quest.png
-X=#IconX4#
+X=#IconX5#
 MenuTitle=Quest Menu
 
-[Icon_Audio]
+[Icon_Lobby]
 Meter=Image
 MeterStyle=StyleIcon
-ImageName=#@#Images\icon_audio.png
-X=#IconX5#
-MenuTitle=Audio Menu
+ImageName=#@#Images\icon_lobby.png
+X=#IconX6#
+MenuTitle=Change Lobby Menu
+
+[Icon_TentSettings]
+Meter=Image
+MeterStyle=StyleIcon
+ImageName=#@#Images\icon_tent_settings.png
+X=#IconX7#
+MenuTitle=Tent Settings Menu
 
 [Icon_Appearance]
 Meter=Image
 MeterStyle=StyleIcon
 ImageName=#@#Images\icon_appearance.png
-X=#IconX6#
+X=#IconX8#
 MenuTitle=Appearance Menu
 
-; --- Sub-menus ------------------------------------------------------------------
+; --- Menus ----------------------------------------------------------------------
 ; Each menu lives in its own file. Rainmeter does allow includes inside included
 ; files; the catch is that a relative path is resolved from THIS file's folder,
 ; so the paths must be anchored with #@#. Their meters are inserted right here,
 ; after the icons, which puts the option bars above the icons in draw order.
-[IncludeSubMenus]
-@IncludeItemBox=#@#Menus\ItemBox.inc
+[IncludeMenus]
+@IncludeItem=#@#Menus\Item.inc
 @IncludeEquipment=#@#Menus\Equipment.inc
 @IncludePalico=#@#Menus\Palico.inc
+@IncludeBBQ=#@#Menus\BBQ.inc
 @IncludeQuest=#@#Menus\Quest.inc
-@IncludeAudio=#@#Menus\Audio.inc
+@IncludeLobby=#@#Menus\Lobby.inc
+@IncludeTentSettings=#@#Menus\TentSettings.inc
 @IncludeAppearance=#@#Menus\Appearance.inc

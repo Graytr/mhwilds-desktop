@@ -1,5 +1,5 @@
 ; ==============================================================================
-; Run panel (Appearance menu): a one-line command box. Menu.lua shows the panel
+; Run panel (Item menu, Customize Radial Menu): a one-line command box. Menu.lua shows the panel
 ; first so the skin window is big enough, then the InputText box opens on top.
 ; Type a program, path or URL and press Enter; Escape cancels.
 ; ==============================================================================

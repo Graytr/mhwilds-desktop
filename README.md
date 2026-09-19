@@ -20,14 +20,16 @@ Needs Rainmeter 4.4 or newer. Everything else it uses (Lua, FileView, ActionTime
 
 | Menu | Options |
 |---|---|
-| Item Box | Item Pouch: Desktop, Downloads (newest first). Item Box: This PC (drive list), Documents. Sell Items: the Recycle Bin. |
-| Equipment | Change Equipment (your program shortcuts), Customize Bowgun (Windows Settings), View Loadout (Task Manager) |
-| Palico | Palico Status (CPU, memory, disk, network, uptime), Call Discord, Devices |
-| Quest | Quest Board (your game shortcuts), Post a Quest (Steam library), Return to Camp: Sleep (immediate), Restart and Shut Down (15 second countdown), Cancel Shutdown |
-| Audio | Now Playing (media panel with transport buttons), Sound Settings, Volume Mixer |
-| Appearance | Manage Rainmeter, Refresh Skins, Wallpaper, Edit This Skin, Run Command |
+| Item | Transfer Items: Desktop, Downloads (newest first), Documents, Pictures (newest first), This PC (drive list). Crafting List: the files you opened most recently. View/Sell Items: the Recycle Bin. Customize Radial Menu: a run box. View/Sell Artian Materials: Storage settings. |
+| Equipment | Change Equipment (your program shortcuts), View/Sell Equipment (Apps & features), View/Sell Decorations (Startup apps), Customize Bowgun (Windows Settings), View Loadouts (Task Manager) |
+| Palico | Palico Deployment Status (CPU, memory, disk, network, uptime), Change Palico Equipment (Bluetooth & devices), View/Sell Palico Equipment (Device Manager), Palico Info (About this PC) |
+| BBQ | Grill a Meal: Game Mode, Night Light, Power Mode, Set a Timer. Rest: Lock, Sleep, Restart and Shut Down (15 second countdown), Cancel Shutdown |
+| Quest | Post/Join Quest (your game shortcuts), Quest Completion Animations (Videos, newest first), Conversation Log (Steam friends and chat), Monster Field Guide: Steam Library, Steam Store, Kiranico, the Wilds wiki |
+| Change Lobby | Recommended Lobby (Discord), Lobby Search (Network status), Private Lobby (VPN settings), Online Single Player (Focus assist) |
+| Tent Settings | Change BGM (media panel with transport buttons), Sound Settings, Volume Mixer |
+| Appearance | Equipment Appearance (Wallpaper), Palico Equipment Appearance: Manage Rainmeter, Refresh Skins, Edit This Skin. Change Appearance: Colors, Themes, Lock Screen, Taskbar, Display. Seikret Customization (Mouse settings) |
 
-Desktop, Documents and Downloads are found through Windows, so they work even when those folders live on another drive.
+The icons and top-level labels follow the game's current tent menu (eight icons); sub-menus use plain names so you can see where you are going. Desktop, Documents, Downloads, Pictures and Videos are found through Windows, so they work even when those folders live on another drive. The Crafting List reads the shortcuts Windows keeps for recently opened files.
 
 ## How it is built
 
@@ -36,7 +38,7 @@ Desktop, Documents and Downloads are found through Windows, so they work even wh
 | `MHWildsMenu.ini` | Root skin: `[Rainmeter]`, `[Metadata]`, the includes and the Lua measure. |
 | `@Resources/Variables.inc` | Every size, colour and path. Sizes are multiples of `SizeMultiplier`, so the whole skin scales together. |
 | `@Resources/Styles.inc` | MeterStyles shared by the icons, option bars, labels, arrows and panels, including their mouse actions. |
-| `@Resources/Menus/MainMenu.inc` | Background, title, the glow behind the selected icon, the six icons, and the includes for the menus. |
+| `@Resources/Menus/MainMenu.inc` | Background, title, the glow behind the selected icon, the eight icons, and the includes for the menus. |
 | `@Resources/Menus/<Menu>.inc` | One file per icon: its list of options plus any sub-menu lists. |
 | `@Resources/Panels/*.inc` | The panels that open to the right: file list, Now Playing, Palico status, run box. |
 | `@Resources/Cursor.inc` | The click flash, the green dot and the animation timer, included last so they draw on top. |
@@ -60,7 +62,7 @@ MenuAction=[!CommandMeasure MenuScript "ShowFolder('GamesPath', 'Name', 'Games',
 Meter=String
 MeterStyle=StyleOptionText | StyleQuest
 Y=(#OptionY1# + #OptionTextDY#)
-Text=Quest Board
+Text=Post/Join Quest
 
 [Opt_Quest_1_Arrow]
 Meter=Image
@@ -70,9 +72,9 @@ Y=#OptionY1#
 
 `MenuAction` is anything Rainmeter can run: a program or path in `["quotes"]`, bangs such as `[!Manage]`, or a call into the script:
 
-- `ShowFolder('GamesPath', 'Name', 'Games', 'lnk;url')` shows a folder in the file list. The first argument is the name of a variable (or a measure) holding the path, the sort is `Name`, `Size`, `Type` or `Date`, then the header text and an optional extension filter. An empty path lists the drives.
+- `ShowFolder('GamesPath', 'Name', 'Games', 'lnk;url')` shows a folder in the file list. The first argument is the name of a variable (or a measure) holding the path, the sort is `Name`, `Size`, `Type` or `Date`, then the header text, an optional extension filter and an optional `0` to leave sub-folders out. An empty path lists the drives.
 - `ShowPanel('Status')` shows a panel: `FileList`, `NowPlaying`, `Status` or `Run`.
-- `OpenSubmenu('Camp')` opens the list `Camp` in the second column; `BackMenu()` closes it.
+- `OpenSubmenu('Rest')` opens the list `Rest` in the second column; `BackMenu()` closes it.
 
 To add a sixth option, copy a group, use the next number and `OptionY6`.
 
@@ -81,20 +83,20 @@ To add a sixth option, copy a group, use the next number and `OptionY6`.
 A sub-menu is another list in the same file whose meters add the second-column styles. Give it a style that puts it in the `Menus` group, its own `Opt_<List>_<N>` groups, and point a parent option at it with `OpenSubmenu`:
 
 ```ini
-[StyleCamp]
-Group=Menus | Menu_Camp
+[StyleRest]
+Group=Menus | Menu_Rest
 
-[Opt_Camp_1]
+[Opt_Rest_1]
 Meter=Image
-MeterStyle=StyleOptionBar | StyleSubBarColumn | StyleCamp
+MeterStyle=StyleOptionBar | StyleSubBarColumn | StyleRest
 Y=#OptionY1#
-MenuAction=[rundll32.exe powrprof.dll,SetSuspendState 0,1,0]
+MenuAction=[rundll32.exe user32.dll,LockWorkStation]
 
-[Opt_Camp_1_Text]
+[Opt_Rest_1_Text]
 Meter=String
-MeterStyle=StyleOptionText | StyleSubTextColumn | StyleCamp
+MeterStyle=StyleOptionText | StyleSubTextColumn | StyleRest
 Y=(#OptionY1# + #OptionTextDY#)
-Text=Sleep
+Text=Lock
 ```
 
 An arrow in the second column uses `StyleOptionArrow | StyleSubArrowColumn`.

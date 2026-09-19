@@ -1,5 +1,5 @@
 ; ==============================================================================
-; Quest menu: the quest board is your game library; Return to Camp holds the power options.
+; Quest menu: the quest board is your game library; the field guide is where to look things up.
 ;
 ; Every option is a bar (Opt_<List>_<N>) plus its label (Opt_<List>_<N>_Text), and an
 ; arrow (Opt_<List>_<N>_Arrow) when it opens something to the right. MenuAction on the
@@ -24,7 +24,7 @@ MenuAction=[!CommandMeasure MenuScript "ShowFolder('GamesPath', 'Name', 'Games',
 Meter=String
 MeterStyle=StyleOptionText | StyleQuest
 Y=(#OptionY1# + #OptionTextDY#)
-Text=Quest Board
+Text=Post/Join Quest
 
 [Opt_Quest_1_Arrow]
 Meter=Image
@@ -35,79 +35,96 @@ Y=#OptionY1#
 Meter=Image
 MeterStyle=StyleOptionBar | StyleQuest
 Y=#OptionY2#
-MenuAction=["steam://open/games"]
+MenuAction=[!CommandMeasure MenuScript "ShowFolder('mVideosPath', 'Date', 'Videos')"]
 
 [Opt_Quest_2_Text]
 Meter=String
 MeterStyle=StyleOptionText | StyleQuest
 Y=(#OptionY2# + #OptionTextDY#)
-Text=Post a Quest
+Text=Quest Completion Animations
+
+[Opt_Quest_2_Arrow]
+Meter=Image
+MeterStyle=StyleOptionArrow | StyleQuest
+Y=#OptionY2#
 
 [Opt_Quest_3]
 Meter=Image
 MeterStyle=StyleOptionBar | StyleQuest
 Y=#OptionY3#
-MenuAction=[!CommandMeasure MenuScript "OpenSubmenu('Camp')"]
+MenuAction=["steam://open/friends"]
 
 [Opt_Quest_3_Text]
 Meter=String
 MeterStyle=StyleOptionText | StyleQuest
 Y=(#OptionY3# + #OptionTextDY#)
-Text=Return to Camp
+Text=Conversation Log
 
-[Opt_Quest_3_Arrow]
+[Opt_Quest_4]
+Meter=Image
+MeterStyle=StyleOptionBar | StyleQuest
+Y=#OptionY4#
+MenuAction=[!CommandMeasure MenuScript "OpenSubmenu('FieldGuide')"]
+
+[Opt_Quest_4_Text]
+Meter=String
+MeterStyle=StyleOptionText | StyleQuest
+Y=(#OptionY4# + #OptionTextDY#)
+Text=Monster Field Guide
+
+[Opt_Quest_4_Arrow]
 Meter=Image
 MeterStyle=StyleOptionArrow | StyleQuest
-Y=#OptionY3#
-
-; --- Camp: sleep, restart and shut down. Restart and Shut Down give you 15 seconds; Cancel aborts them.
-[StyleCamp]
-Group=Menus | Menu_Camp
-
-[Opt_Camp_1]
-Meter=Image
-MeterStyle=StyleOptionBar | StyleSubBarColumn | StyleCamp
-Y=#OptionY1#
-MenuAction=[rundll32.exe powrprof.dll,SetSuspendState 0,1,0]
-
-[Opt_Camp_1_Text]
-Meter=String
-MeterStyle=StyleOptionText | StyleSubTextColumn | StyleCamp
-Y=(#OptionY1# + #OptionTextDY#)
-Text=Sleep
-
-[Opt_Camp_2]
-Meter=Image
-MeterStyle=StyleOptionBar | StyleSubBarColumn | StyleCamp
-Y=#OptionY2#
-MenuAction=[shutdown.exe /r /t 15]
-
-[Opt_Camp_2_Text]
-Meter=String
-MeterStyle=StyleOptionText | StyleSubTextColumn | StyleCamp
-Y=(#OptionY2# + #OptionTextDY#)
-Text=Restart
-
-[Opt_Camp_3]
-Meter=Image
-MeterStyle=StyleOptionBar | StyleSubBarColumn | StyleCamp
-Y=#OptionY3#
-MenuAction=[shutdown.exe /s /t 15]
-
-[Opt_Camp_3_Text]
-Meter=String
-MeterStyle=StyleOptionText | StyleSubTextColumn | StyleCamp
-Y=(#OptionY3# + #OptionTextDY#)
-Text=Shut Down
-
-[Opt_Camp_4]
-Meter=Image
-MeterStyle=StyleOptionBar | StyleSubBarColumn | StyleCamp
 Y=#OptionY4#
-MenuAction=[shutdown.exe /a]
 
-[Opt_Camp_4_Text]
+; --- FieldGuide: reference, in the second column
+[StyleFieldGuide]
+Group=Menus | Menu_FieldGuide
+
+[Opt_FieldGuide_1]
+Meter=Image
+MeterStyle=StyleOptionBar | StyleSubBarColumn | StyleFieldGuide
+Y=#OptionY1#
+MenuAction=["steam://open/games"]
+
+[Opt_FieldGuide_1_Text]
 Meter=String
-MeterStyle=StyleOptionText | StyleSubTextColumn | StyleCamp
+MeterStyle=StyleOptionText | StyleSubTextColumn | StyleFieldGuide
+Y=(#OptionY1# + #OptionTextDY#)
+Text=Steam Library
+
+[Opt_FieldGuide_2]
+Meter=Image
+MeterStyle=StyleOptionBar | StyleSubBarColumn | StyleFieldGuide
+Y=#OptionY2#
+MenuAction=["steam://store/"]
+
+[Opt_FieldGuide_2_Text]
+Meter=String
+MeterStyle=StyleOptionText | StyleSubTextColumn | StyleFieldGuide
+Y=(#OptionY2# + #OptionTextDY#)
+Text=Steam Store
+
+[Opt_FieldGuide_3]
+Meter=Image
+MeterStyle=StyleOptionBar | StyleSubBarColumn | StyleFieldGuide
+Y=#OptionY3#
+MenuAction=["https://mhwilds.kiranico.com/"]
+
+[Opt_FieldGuide_3_Text]
+Meter=String
+MeterStyle=StyleOptionText | StyleSubTextColumn | StyleFieldGuide
+Y=(#OptionY3# + #OptionTextDY#)
+Text=Kiranico Database
+
+[Opt_FieldGuide_4]
+Meter=Image
+MeterStyle=StyleOptionBar | StyleSubBarColumn | StyleFieldGuide
+Y=#OptionY4#
+MenuAction=["https://monsterhunterwilds.wiki.fextralife.com/"]
+
+[Opt_FieldGuide_4_Text]
+Meter=String
+MeterStyle=StyleOptionText | StyleSubTextColumn | StyleFieldGuide
 Y=(#OptionY4# + #OptionTextDY#)
-Text=Cancel Shutdown
+Text=Wilds Wiki

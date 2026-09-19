@@ -1,6 +1,6 @@
 ; ==============================================================================
 ; File list panel: a small folder browser shared by every option that shows a
-; folder. Menu.lua points it somewhere with ShowFolder(<path variable>, <sort>, <title>)
+; folder. Menu.lua points it somewhere with ShowFolder(<path source>, <sort>, <title>, ...)
 ; and handles the rows, which are FileRow<N> (hit area), FileIcon<N> and FileName<N>.
 ; Click a row to open the file or enter the folder; scroll to page; Back goes up.
 ; ==============================================================================
@@ -24,8 +24,8 @@ SortAscending=1
 DynamicVariables=1
 FinishAction=[!UpdateMeasureGroup FileListChildren][!UpdateMeterGroup Panel_FileList][!Redraw]
 
-; Where Windows keeps this user's Downloads, Desktop and Documents folders (they can
-; live on another drive)
+; Where Windows keeps this user's Downloads, Desktop, Documents, Pictures and Videos
+; folders (they can live on another drive)
 [mDownloadsPath]
 Measure=Registry
 RegHKey=HKEY_CURRENT_USER
@@ -45,6 +45,20 @@ Measure=Registry
 RegHKey=HKEY_CURRENT_USER
 RegKey=Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders
 RegValue=Personal
+UpdateDivider=-1
+
+[mPicturesPath]
+Measure=Registry
+RegHKey=HKEY_CURRENT_USER
+RegKey=Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders
+RegValue=My Pictures
+UpdateDivider=-1
+
+[mVideosPath]
+Measure=Registry
+RegHKey=HKEY_CURRENT_USER
+RegKey=Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders
+RegValue=My Video
 UpdateDivider=-1
 
 [mFileListFolders]

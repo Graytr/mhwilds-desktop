@@ -1,5 +1,5 @@
 ; ==============================================================================
-; Equipment menu: your loadout is your programs, named after the game's own options.
+; Equipment menu: your programs are your loadout.
 ;
 ; Every option is a bar (Opt_<List>_<N>) plus its label (Opt_<List>_<N>_Text), and an
 ; arrow (Opt_<List>_<N>_Arrow) when it opens something to the right. MenuAction on the
@@ -35,22 +35,46 @@ Y=#OptionY1#
 Meter=Image
 MeterStyle=StyleOptionBar | StyleEquipment
 Y=#OptionY2#
-MenuAction=["ms-settings:"]
+MenuAction=["ms-settings:appsfeatures"]
 
 [Opt_Equipment_2_Text]
 Meter=String
 MeterStyle=StyleOptionText | StyleEquipment
 Y=(#OptionY2# + #OptionTextDY#)
-Text=Customize Bowgun
+Text=View/Sell Equipment
 
 [Opt_Equipment_3]
 Meter=Image
 MeterStyle=StyleOptionBar | StyleEquipment
 Y=#OptionY3#
-MenuAction=["taskmgr.exe"]
+MenuAction=["ms-settings:startupapps"]
 
 [Opt_Equipment_3_Text]
 Meter=String
 MeterStyle=StyleOptionText | StyleEquipment
 Y=(#OptionY3# + #OptionTextDY#)
-Text=View Loadout
+Text=View/Sell Decorations
+
+[Opt_Equipment_4]
+Meter=Image
+MeterStyle=StyleOptionBar | StyleEquipment
+Y=#OptionY4#
+MenuAction=["ms-settings:"]
+
+[Opt_Equipment_4_Text]
+Meter=String
+MeterStyle=StyleOptionText | StyleEquipment
+Y=(#OptionY4# + #OptionTextDY#)
+Text=Customize Bowgun
+
+[Opt_Equipment_5]
+Meter=Image
+MeterStyle=StyleOptionBar | StyleEquipment
+Y=#OptionY5#
+MenuAction=["taskmgr.exe"]
+
+[Opt_Equipment_5_Text]
+Meter=String
+MeterStyle=StyleOptionText | StyleEquipment
+Y=(#OptionY5# + #OptionTextDY#)
+Text=View Loadouts

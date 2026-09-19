@@ -1,5 +1,5 @@
 ; ==============================================================================
-; Now Playing panel (BBQ menu). Reads the player named by MediaPlayer in
+; Now Playing panel (Tent Settings menu, Change BGM). Reads the player named by MediaPlayer in
 ; Variables.inc. The measures sleep until Menu.lua shows the panel.
 ; ==============================================================================
 

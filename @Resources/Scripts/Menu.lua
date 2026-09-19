@@ -14,7 +14,7 @@ Naming conventions the script depends on
   Opt_<List>_<N>_Arrow   the arrow shown next to options that open something to the right.
   group Menus            every list meter (hidden together).
   group Menu_<List>      the meters of one list (shown together).
-  group Icons            the six icons.
+  group Icons            the eight icons.
   group Panels           every panel meter; group Panel_<Name> one panel.
   group <Name>Measures   a panel's measures, enabled only while it is showing.
   MeterTitle, MeterIconGlow, MeterCursor, MeterPulse   the shared indicator meters.
@@ -275,7 +275,8 @@ end
 --   sort     Name, Size, Type or Date (Date lists newest first)
 --   title    header text
 --   exts     optional filter such as 'lnk;url'; empty or nil shows every file
-function ShowFolder(source, sort, title, exts)
+--   folders  optional; 0 leaves sub-folders out (the Recent list is shortcuts only)
+function ShowFolder(source, sort, title, exts, folders)
   sort = sort or 'Name'
   local m = SKIN:GetMeasure(source)
   local path = m and m:GetStringValue() or ('#' .. source .. '#')
@@ -283,6 +284,7 @@ function ShowFolder(source, sort, title, exts)
     .. '[!SetOption mFileList SortType "' .. sort .. '"]'
     .. '[!SetOption mFileList SortAscending "' .. (sort == 'Date' and '0' or '1') .. '"]'
     .. '[!SetOption mFileList Extensions "' .. (exts or '') .. '"]'
+    .. '[!SetOption mFileList ShowFolder "' .. (tonumber(folders) == 0 and '0' or '1') .. '"]'
     .. '[!SetOption PanelFileListTitle Text "' .. (title or 'Files') .. '"]'
     .. '[!UpdateMeasure mFileList][!CommandMeasure mFileList Update]')
   ShowPanel('FileList')

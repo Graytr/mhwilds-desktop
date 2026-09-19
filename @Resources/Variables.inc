@@ -34,19 +34,22 @@ TitleX=(#MainMenuX# + (6*#SizeMultiplier#))
 TitleY=(#MainMenuY# + (3*#SizeMultiplier#))
 TitleFontSize=(2.5*#SizeMultiplier#)
 
-; Icon row: six icons on a fixed pitch. Slot N is centred 2 units right of
+; Icon row: eight icons on a fixed pitch. Slot N is centred IconOffset right of
 ; MainMenuX + N*IconPitch, on the IconRowCenterY line. Neither depends on IconSize,
 ; so the icons can be resized without moving their slots.
 IconSize=(4.8*#SizeMultiplier#)
-IconPitch=(10*#SizeMultiplier#)
+IconPitch=(8*#SizeMultiplier#)
+IconOffset=(1.5*#SizeMultiplier#)
 IconRowCenterY=(#MainMenuY# + (11.5*#SizeMultiplier#))
 IconRowY=(#IconRowCenterY# - (#IconSize# / 2))
-IconX1=(#MainMenuX# + (1*#IconPitch#) + (2*#SizeMultiplier#) - (#IconSize# / 2))
-IconX2=(#MainMenuX# + (2*#IconPitch#) + (2*#SizeMultiplier#) - (#IconSize# / 2))
-IconX3=(#MainMenuX# + (3*#IconPitch#) + (2*#SizeMultiplier#) - (#IconSize# / 2))
-IconX4=(#MainMenuX# + (4*#IconPitch#) + (2*#SizeMultiplier#) - (#IconSize# / 2))
-IconX5=(#MainMenuX# + (5*#IconPitch#) + (2*#SizeMultiplier#) - (#IconSize# / 2))
-IconX6=(#MainMenuX# + (6*#IconPitch#) + (2*#SizeMultiplier#) - (#IconSize# / 2))
+IconX1=(#MainMenuX# + (1*#IconPitch#) + #IconOffset# - (#IconSize# / 2))
+IconX2=(#MainMenuX# + (2*#IconPitch#) + #IconOffset# - (#IconSize# / 2))
+IconX3=(#MainMenuX# + (3*#IconPitch#) + #IconOffset# - (#IconSize# / 2))
+IconX4=(#MainMenuX# + (4*#IconPitch#) + #IconOffset# - (#IconSize# / 2))
+IconX5=(#MainMenuX# + (5*#IconPitch#) + #IconOffset# - (#IconSize# / 2))
+IconX6=(#MainMenuX# + (6*#IconPitch#) + #IconOffset# - (#IconSize# / 2))
+IconX7=(#MainMenuX# + (7*#IconPitch#) + #IconOffset# - (#IconSize# / 2))
+IconX8=(#MainMenuX# + (8*#IconPitch#) + #IconOffset# - (#IconSize# / 2))
 ; soft glow drawn behind the selected icon
 IconGlowRadius=(3.6*#SizeMultiplier#)
 
@@ -101,14 +104,16 @@ CursorInsetX=(0.6*#SizeMultiplier#)
 
 ; --- Folders and programs the menus point at ----------------------------------
 ; Drop shortcuts (.lnk / .url) into the two Customize folders; git ignores them.
-; (Desktop, Documents and Downloads are not here: the file list reads their locations
-; from Windows, see the m...Path measures in Panels\FileList.inc.)
+; (Desktop, Documents, Downloads, Pictures and Videos are not here: the file list reads
+; their locations from Windows, see the m...Path measures in Panels\FileList.inc.)
 ; an empty path makes the file list show the drives, like This PC
 ThisPCPath=
 ProgramsPath=#@#Customize\Programs
 GamesPath=#@#Customize\Games
+; the shortcuts Windows keeps to recently opened files (the Crafting List)
+RecentPath=%APPDATA%\Microsoft\Windows\Recent
 DiscordShortcut=%APPDATA%\Microsoft\Windows\Start Menu\Programs\Discord.lnk
-; player for the BBQ menu's Now Playing panel, one of:
+; player for the Tent Settings menu's Change BGM panel, one of:
 ; AIMP, CAD, foobar2000, iTunes, MediaMonkey, Spotify, WinAmp, WLM, WMP
 MediaPlayer=Spotify
 ; where that player lives, used by the Open button (leave empty if unsure)

@@ -64,7 +64,7 @@ MeterStyle=StylePanelTitle | StyleStatus
 X=(#PanelX# + #PanelPad#)
 Y=(#PanelY# + #PanelPad#)
 W=#PanelInnerW#
-Text=Palico Status
+Text=Palico Deployment Status
 
 [StatusCPULabel]
 Meter=String

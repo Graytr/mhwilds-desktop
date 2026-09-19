@@ -24,7 +24,7 @@ MenuAction=[!CommandMeasure MenuScript "ShowPanel('Status')"]
 Meter=String
 MeterStyle=StyleOptionText | StylePalico
 Y=(#OptionY1# + #OptionTextDY#)
-Text=Palico Status
+Text=Palico Deployment Status
 
 [Opt_Palico_1_Arrow]
 Meter=Image
@@ -35,22 +35,34 @@ Y=#OptionY1#
 Meter=Image
 MeterStyle=StyleOptionBar | StylePalico
 Y=#OptionY2#
-MenuAction=["#DiscordShortcut#"]
+MenuAction=["ms-settings:bluetooth"]
 
 [Opt_Palico_2_Text]
 Meter=String
 MeterStyle=StyleOptionText | StylePalico
 Y=(#OptionY2# + #OptionTextDY#)
-Text=Call Discord
+Text=Change Palico Equipment
 
 [Opt_Palico_3]
 Meter=Image
 MeterStyle=StyleOptionBar | StylePalico
 Y=#OptionY3#
-MenuAction=["ms-settings:bluetooth"]
+MenuAction=["devmgmt.msc"]
 
 [Opt_Palico_3_Text]
 Meter=String
 MeterStyle=StyleOptionText | StylePalico
 Y=(#OptionY3# + #OptionTextDY#)
-Text=Devices
+Text=View/Sell Palico Equipment
+
+[Opt_Palico_4]
+Meter=Image
+MeterStyle=StyleOptionBar | StylePalico
+Y=#OptionY4#
+MenuAction=["ms-settings:about"]
+
+[Opt_Palico_4_Text]
+Meter=String
+MeterStyle=StyleOptionText | StylePalico
+Y=(#OptionY4# + #OptionTextDY#)
+Text=Palico Info

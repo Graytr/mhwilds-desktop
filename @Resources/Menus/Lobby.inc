@@ -1,5 +1,5 @@
 ; ==============================================================================
-; Audio menu: music and sound.
+; Change Lobby menu: everything online.
 ;
 ; Every option is a bar (Opt_<List>_<N>) plus its label (Opt_<List>_<N>_Text), and an
 ; arrow (Opt_<List>_<N>_Arrow) when it opens something to the right. MenuAction on the
@@ -10,47 +10,54 @@
 ; To add an option, copy a group, bump <N> and use the next OptionY variable.
 ; ==============================================================================
 
-; --- Audio: the list shown when the speaker icon is clicked
-[StyleAudio]
-Group=Menus | Menu_Audio
+; --- Lobby: the list shown when the lobby icon is clicked
+[StyleLobby]
+Group=Menus | Menu_Lobby
 
-[Opt_Audio_1]
+[Opt_Lobby_1]
 Meter=Image
-MeterStyle=StyleOptionBar | StyleAudio
+MeterStyle=StyleOptionBar | StyleLobby
 Y=#OptionY1#
-MenuAction=[!CommandMeasure MenuScript "ShowPanel('NowPlaying')"]
+MenuAction=["#DiscordShortcut#"]
 
-[Opt_Audio_1_Text]
+[Opt_Lobby_1_Text]
 Meter=String
-MeterStyle=StyleOptionText | StyleAudio
+MeterStyle=StyleOptionText | StyleLobby
 Y=(#OptionY1# + #OptionTextDY#)
-Text=Now Playing
+Text=Recommended Lobby
 
-[Opt_Audio_1_Arrow]
+[Opt_Lobby_2]
 Meter=Image
-MeterStyle=StyleOptionArrow | StyleAudio
-Y=#OptionY1#
-
-[Opt_Audio_2]
-Meter=Image
-MeterStyle=StyleOptionBar | StyleAudio
+MeterStyle=StyleOptionBar | StyleLobby
 Y=#OptionY2#
-MenuAction=["ms-settings:sound"]
+MenuAction=["ms-settings:network-status"]
 
-[Opt_Audio_2_Text]
+[Opt_Lobby_2_Text]
 Meter=String
-MeterStyle=StyleOptionText | StyleAudio
+MeterStyle=StyleOptionText | StyleLobby
 Y=(#OptionY2# + #OptionTextDY#)
-Text=Sound Settings
+Text=Lobby Search
 
-[Opt_Audio_3]
+[Opt_Lobby_3]
 Meter=Image
-MeterStyle=StyleOptionBar | StyleAudio
+MeterStyle=StyleOptionBar | StyleLobby
 Y=#OptionY3#
-MenuAction=["sndvol.exe"]
+MenuAction=["ms-settings:network-vpn"]
 
-[Opt_Audio_3_Text]
+[Opt_Lobby_3_Text]
 Meter=String
-MeterStyle=StyleOptionText | StyleAudio
+MeterStyle=StyleOptionText | StyleLobby
 Y=(#OptionY3# + #OptionTextDY#)
-Text=Volume Mixer
+Text=Private Lobby
+
+[Opt_Lobby_4]
+Meter=Image
+MeterStyle=StyleOptionBar | StyleLobby
+Y=#OptionY4#
+MenuAction=["ms-settings:quiethours"]
+
+[Opt_Lobby_4_Text]
+Meter=String
+MeterStyle=StyleOptionText | StyleLobby
+Y=(#OptionY4# + #OptionTextDY#)
+Text=Online Single Player

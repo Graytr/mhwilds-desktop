@@ -14,7 +14,7 @@ Needs Rainmeter 4.4 or newer. Everything else it uses (Lua, FileView, ActionTime
 ## Using it
 
 - Hover an icon to select it; the glow follows. Click it to open its menu, click it again to close everything.
-- Hover an option to preview it, click it to select it and run it. When you move away, the highlight falls back to what you clicked.
+- Hover an option to preview it, click it to select it and run it. When you move away, the highlight falls back to what you clicked. The column under the mouse (or the deepest open one) shows its highlight in bright green; the other column's turns olive, like the game.
 - Options with an arrow open something to the right: a sub-menu in a second column, or a panel. Right-click any option to close the sub-menu, or the menu if none is open.
 - Folders open in the skin's own file list. Click a row to open it, scroll with the wheel, Back goes up a folder, Open Folder opens the real Explorer window. Clicking any other option closes the panel.
 
@@ -44,6 +44,7 @@ The icons and top-level labels follow the game's current tent menu (eight icons)
 | `@Resources/Cursor.inc` | The click flash, the green dot and the animation timer, included last so they draw on top. |
 | `@Resources/Scripts/Menu.lua` | All behaviour: which icon is selected, which columns and panel are open, which options are highlighted, and the glides. |
 | `@Resources/Images/` | Artwork, kept at about twice its on-screen size. |
+| `tools/make_bars.py` | Paints the two option-bar images: the dark block behind unselected options and the green bar that fades out over the selected one. |
 
 The INI files only describe how things look. Every mouse action calls a function in `Menu.lua`, which is heavily commented and is the place to read if you want to change behaviour.
 
@@ -113,4 +114,5 @@ An arrow in the second column uses `StyleOptionArrow | StyleSubArrowColumn`.
 - Set `DebugLog=1` in `Variables.inc` and the script narrates what it does in the Rainmeter log (`%APPDATA%\Rainmeter\Rainmeter.log`). Refresh the skin after a change and read the log for errors.
 - Notepad++ highlights `.inc` files as INI if you add `inc` under Settings, Style Configurator, ini, User ext.
 - Rainmeter bakes a variable's references to other variables when the skin loads, so a variable derived from one the script changes at runtime (such as `PanelX`) will not follow it. Write the expression in the meter instead.
+- To change the bars' colour, fade or texture, edit the numbers at the top of `tools/make_bars.py`, run it with Python (it needs Pillow: `python -m pip install pillow`) and refresh the skin.
 - Rainmeter counts hidden meters' positions when sizing the skin window, so the transparent window is wider than the drawn menu. Transparent areas are click-through, so nothing underneath is blocked.

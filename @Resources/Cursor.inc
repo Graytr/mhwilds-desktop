@@ -8,7 +8,7 @@
 Meter=Shape
 X=#OptionsX#
 Y=#OptionY1#
-Shape=Rectangle 0,0,#OptionSelectedW#,#OptionH#,3 | Fill Color 255,255,255,0 | StrokeWidth 0
+Shape=Rectangle 0,0,#OptionW#,#OptionH#,3 | Fill Color 255,255,255,0 | StrokeWidth 0
 Hidden=1
 
 [MeterCursor]

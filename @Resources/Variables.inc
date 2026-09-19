@@ -23,6 +23,9 @@ CursorCoreColor=232,255,150,255
 ; --- Images -------------------------------------------------------------------
 BarImageNormal=#@#Images\bar_normal.png
 BarImageSelected=#@#Images\bar_selected.png
+; the highlight of a list that does not have focus (the first column while a sub-menu
+; is open) is the green bar seen through this tint, which turns it olive like the game
+BarTintDim=170,160,140,255
 
 ; --- Main menu bar ------------------------------------------------------------
 MainMenuX=0
@@ -58,10 +61,10 @@ OptionsX=(#MainMenuX# + (9*#SizeMultiplier#))
 OptionsY=(#MainMenuY# + (18*#SizeMultiplier#))
 OptionPitch=(5*#SizeMultiplier#)
 OptionH=(5*#SizeMultiplier#)
-; the unselected bar art fades out by 42% of its width, so the bar (and its mouse
-; area) stops at 45 units instead of running under the panels
-OptionW=(45*#SizeMultiplier#)
-OptionSelectedW=(50*#SizeMultiplier#)
+; both bar images are painted the full width (tools\make_bars.py): a dark translucent
+; block behind an unselected option, a green bar that fades out to the right over the
+; selected one
+OptionW=(50*#SizeMultiplier#)
 OptionTextDX=(3*#SizeMultiplier#)
 OptionTextDY=(1.1*#SizeMultiplier#)
 OptionFontSize=(1.8*#SizeMultiplier#)
@@ -72,14 +75,16 @@ OptionY4=(#OptionsY# + (3*#OptionPitch#))
 OptionY5=(#OptionsY# + (4*#OptionPitch#))
 OptionY6=(#OptionsY# + (5*#OptionPitch#))
 
-; second column: a sub-menu opens to the right of the list that owns it
-SubOptionsX=(#OptionsX# + #OptionSelectedW# + (8*#SizeMultiplier#))
-; arrows mark options that open a sub-menu or a panel; they sit just past the end
-; of the selected bar and stay visible whether or not the option is selected
-ArrowX=(#OptionsX# + #OptionSelectedW#)
-SubArrowX=(#SubOptionsX# + #OptionSelectedW#)
+; second column: a sub-menu opens to the right of the list that owns it, leaving a
+; small gap for the dot (panels keep the same gap)
+ColumnGap=(4*#SizeMultiplier#)
+SubOptionsX=(#OptionsX# + #OptionW# + #ColumnGap#)
+; arrows mark options that open a sub-menu or a panel; they sit inside the faded right
+; end of the bar and stay visible whether or not the option is selected
 ArrowW=(4*#SizeMultiplier#)
 ArrowH=#OptionH#
+ArrowX=(#OptionsX# + #OptionW# - #ArrowW# - (0.5*#SizeMultiplier#))
+SubArrowX=(#SubOptionsX# + #OptionW# - #ArrowW# - (0.5*#SizeMultiplier#))
 
 ; --- Animation ------------------------------------------------------------------
 ; the glow and the dot glide to their targets: AnimFrames steps of AnimFrameMs each
@@ -92,7 +97,7 @@ HoverRevertMs=80
 PulseFrames=10
 PulsePeakAlpha=150
 ; the selected bar's artwork is drawn at this opacity (255 = exactly as painted)
-BarSelectedAlpha=225
+BarSelectedAlpha=255
 ; set to 1 to have Menu.lua narrate what it does in the Rainmeter log
 DebugLog=0
 
@@ -122,8 +127,8 @@ MediaPlayerPath=%APPDATA%\Spotify\Spotify.exe
 ; --- Panels: the area to the right of the option bars -------------------------
 ; panels sit right of the list they were opened from. Menu.lua switches PanelX between
 ; these two as a sub-menu opens or closes (panel meters use DynamicVariables=1 for that)
-PanelXNear=(#OptionsX# + #OptionSelectedW# + (10*#SizeMultiplier#))
-PanelXFar=(#SubOptionsX# + #OptionSelectedW# + (10*#SizeMultiplier#))
+PanelXNear=(#OptionsX# + #OptionW# + #ColumnGap#)
+PanelXFar=(#SubOptionsX# + #OptionW# + #ColumnGap#)
 PanelX=#PanelXNear#
 PanelY=#OptionsY#
 PanelW=(80*#SizeMultiplier#)

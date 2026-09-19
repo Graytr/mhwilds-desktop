@@ -49,13 +49,18 @@ MouseLeaveAction=[!CommandMeasure MenuScript "LeaveOption('#CURRENTSECTION#')"]
 LeftMouseUpAction=[!CommandMeasure MenuScript "ClickOption('#CURRENTSECTION#')"]
 RightMouseUpAction=[!CommandMeasure MenuScript "BackMenu()"]
 
-; the arrow next to an option that opens a sub-menu or a panel
+; the arrow at the right end of an option that opens a sub-menu or a panel; it lies on
+; the bar, so it forwards the same mouse events
 [StyleOptionArrow]
 ImageName=#@#Images\chevrons.png
 X=#ArrowX#
 W=#ArrowW#
 H=#ArrowH#
 Hidden=1
+MouseOverAction=[!CommandMeasure MenuScript "HoverOption('#CURRENTSECTION#')"]
+MouseLeaveAction=[!CommandMeasure MenuScript "LeaveOption('#CURRENTSECTION#')"]
+LeftMouseUpAction=[!CommandMeasure MenuScript "ClickOption('#CURRENTSECTION#')"]
+RightMouseUpAction=[!CommandMeasure MenuScript "BackMenu()"]
 
 ; add one of these after the base style to put a sub-menu's meters in the second column
 [StyleSubBarColumn]
